@@ -1,0 +1,24 @@
+{
+	"code": "00",
+	"desc": "success",
+	"success": true,
+	"data": {
+		"accountNumber": "0359186887",
+		"amount": 2000,
+		"description": "VQRIO123",
+		"reference": "FT24253223355398",
+		"transactionDateTime": "2024-09-08 22:06:24",
+		"virtualAccountNumber": "",
+		"counterAccountBankId": "970454",
+		"counterAccountBankName": "",
+		"counterAccountName": "MOMOIBFT",
+		"counterAccountNumber": "0697044105922",
+		"virtualAccountName": "",
+		"currency": "VND",
+		"orderCode": 123,
+		"paymentLinkId": "381ef376f4c64a8bb5a04bd6f37f842d",
+		"code": "00",
+		"desc": "success"
+	},
+	"signature": "5526198a195311477131614ea2a7d3e08990a95fd5e6e5c34ea86eb375292e4e"
+}

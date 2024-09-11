@@ -1,0 +1,77 @@
+enum UserRole {
+  super_admin
+  administrator
+  platinum
+  gold
+  silver
+  new
+  verified_email
+  verified_phone
+}
+
+enum AuthType {
+  email
+  phone
+}
+
+enum Comport {
+  free_laundry_room
+  HCM_center
+  HN_center
+  cleaning_services
+  suitable_for_1_2_people
+  high_speed_wifi
+  area_from_20m2_32m2
+  city_view
+  river_view
+  balcony
+  desk_working
+  utility_kitchen
+  microwave_oven
+  private_bathroom
+  minibar_refrigerator
+  security_247
+  gym
+  comfortable_room
+  breakfast_buffet
+  pool
+  civilized_community
+  free_laundry
+  television
+  beauty_scene
+  airport_support
+}
+
+enum RoomStatus {
+  available
+  almost_full
+  full
+}
+
+enum TradeMark {
+  signature_by_m_village
+  my_village_living
+  m_village_hotel
+  express_by_m_village
+}
+
+enum BookingType {
+  my_set
+  help_set
+}
+
+enum BookingStatus {
+  paid
+  pending
+  cancelled
+}
+
+enum BookingRange {
+  nights
+  months
+}
+
+enum Currency {
+  VND
+  USD
+}

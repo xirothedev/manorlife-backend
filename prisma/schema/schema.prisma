@@ -1,0 +1,95 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions", "prismaSchemaFolder", "omitApi"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Room {
+  room_id         String            @id
+  price_per_night Int
+  price_per_month Int
+  trademark       TradeMark
+  name            String
+  description     String
+  comforts        Comport[]
+  location        String
+  status          RoomStatus        @default(available)
+  images          String[]
+  booking         Booking[]
+  SurroundingArea SurroundingArea[]
+}
+
+model SurroundingArea {
+  area_id  String @id
+  name     String
+  distance String
+  Room     Room[]
+}
+
+model Auth {
+  user_id      String
+  last_sent_at DateTime
+  code         String
+  auth_type    AuthType
+  auth_id      String   @id
+  user         User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+}
+
+model Booking {
+  booking_id        String        @id @default(cuid())
+  accepted          Boolean       @default(false)
+  user_id           String?
+  user              User?         @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  adults            Int           @default(1)
+  children          Int           @default(0)
+  checkin           DateTime
+  checkout          DateTime
+  fullname_order    String
+  fullname_customer String?
+  email_order       String
+  email_customer    String?
+  phone_order       String
+  phone_customer    String?
+  note              String?
+  type              BookingType
+  create_at         DateTime      @default(now())
+  babies            Int           @default(0)
+  amount            Int
+  currency          Currency      @default(VND)
+  order_code        Int           @unique @default(autoincrement())
+  range             BookingRange
+  status            BookingStatus @default(pending)
+  room              Room          @relation(fields: [room_id], references: [room_id], onDelete: Cascade)
+  room_id           String
+}
+
+model Session {
+  session_id  String   @id
+  create_at   DateTime @default(now())
+  device_data String?
+  ip          String?
+  user_id     String
+  user        User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+}
+
+model User {
+  user_id        String     @id
+  email          String     @unique
+  phone          String?
+  password       String
+  nights         Int        @default(0)
+  books          Int        @default(0)
+  create_at      DateTime   @default(now())
+  update_at      DateTime
+  roles          UserRole[]
+  authentication Auth[]
+  booking        Booking[]
+  session        Session[]
+
+  @@index([email], type: Hash)
+  @@index([phone], type: Hash)
+}
