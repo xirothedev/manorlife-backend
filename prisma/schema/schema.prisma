@@ -8,8 +8,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  user_id        String     @id @default(uuid())
+  email          String     @unique
+  phone          String     @unique
+  password       String
+  nights         Int        @default(0)
+  books          Int        @default(0)
+  create_at      DateTime   @default(now())
+  update_at      DateTime   @updatedAt
+  roles          UserRole[]
+  auth Auth[]
+  booking        Booking[]
+  session        Session[]
+
+  @@index([email], type: Hash)
+  @@index([phone], type: Hash)
+}
+
 model Room {
-  room_id         String            @id
+  room_id         String            @id @default(cuid())
   price_per_night Int
   price_per_month Int
   trademark       TradeMark
@@ -24,18 +42,18 @@ model Room {
 }
 
 model SurroundingArea {
-  area_id  String @id
+  area_id  String @id @default(cuid())
   name     String
   distance String
   Room     Room[]
 }
 
 model Auth {
+  auth_id      String   @id @default(cuid())
   user_id      String
   last_sent_at DateTime
   code         String
   auth_type    AuthType
-  auth_id      String   @id
   user         User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 }
 
@@ -68,28 +86,10 @@ model Booking {
 }
 
 model Session {
-  session_id  String   @id
+  session_id  String   @id @default(cuid())
   create_at   DateTime @default(now())
   device_data String?
   ip          String?
   user_id     String
   user        User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-}
-
-model User {
-  user_id        String     @id
-  email          String     @unique
-  phone          String?
-  password       String
-  nights         Int        @default(0)
-  books          Int        @default(0)
-  create_at      DateTime   @default(now())
-  update_at      DateTime
-  roles          UserRole[]
-  authentication Auth[]
-  booking        Booking[]
-  session        Session[]
-
-  @@index([email], type: Hash)
-  @@index([phone], type: Hash)
 }
