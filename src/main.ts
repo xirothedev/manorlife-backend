@@ -7,7 +7,14 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { join } from "path";
 
 async function bootstrap() {
-	const app = await NestFactory.create<NestExpressApplication>(AppModule);
+	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+		cors: {
+			preflightContinue: true,
+			origin: ["manorlife.vn", "cms.manorlife.vn"],
+			allowedHeaders: "*",
+			methods: "*"
+		},
+	});
 	app.use(cookieParser(process.env.COOKIE_SECRET_KEY));
 	app.useGlobalPipes(new ValidationPipe());
 	app.useStaticAssets(join(__dirname, "..", "public"));
