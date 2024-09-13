@@ -16,7 +16,7 @@ export class AdminService {
 		});
 
 		return {
-			message: `Get ${users.length} user(s) data successfully`,
+			message: `Lấy thông tin của ${users.length} người dùng thành công`,
 			data: users,
 		};
 	}
@@ -29,7 +29,7 @@ export class AdminService {
 		});
 
 		return {
-			message: `Get ${bookings.length} booking(s) data successfully`,
+			message: `Lấy thông tin của ${bookings.length} đơn đặt phòng thành công`,
 			data: bookings,
 		};
 	}
@@ -38,14 +38,14 @@ export class AdminService {
 		const user = await this.prisma.user.findUnique({ where: { user_id: body.user_id } });
 
 		if (!user) {
-			throw new BadRequestException({ message: "User not found" });
+			throw new BadRequestException({ message: "Người dùng không tồn tại" });
 		}
 
 		if (body.email !== user.email) {
 			const isDuplicateEmail = await this.prisma.user.findUnique({ where: { email: body.email } });
 
 			if (isDuplicateEmail) {
-				throw new BadRequestException({ message: "Email duplicate" });
+				throw new BadRequestException({ message: "Địa chỉ email đã tồn tại" });
 			}
 		}
 
@@ -53,7 +53,7 @@ export class AdminService {
 			const isDuplicatePhone = await this.prisma.user.findUnique({ where: { email: body.phone } });
 
 			if (isDuplicatePhone) {
-				throw new BadRequestException({ message: "Phone duplicate" });
+				throw new BadRequestException({ message: "Số điện thoại đã tồn tại" });
 			}
 		}
 
@@ -73,7 +73,7 @@ export class AdminService {
 		});
 
 		return {
-			message: "Updated user successfully",
+			message: "Cập nhập người dùng thành công",
 			data,
 		};
 	}

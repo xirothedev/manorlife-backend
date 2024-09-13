@@ -41,11 +41,11 @@ export class BankService {
 			if (res.data.code === "00") {
 				return res.data;
 			} else {
-				throw new InternalServerErrorException({ message: "Internal Server Error" });
+				throw new InternalServerErrorException({ message: "Server gặp trục trặc, thử lại sau" });
 			}
 		} catch (error) {
 			console.error(error);
-			throw new InternalServerErrorException({ message: "Internal Server Error" });
+			throw new InternalServerErrorException({ message: "Server gặp trục trặc, thử lại sau" });
 		}
 	}
 

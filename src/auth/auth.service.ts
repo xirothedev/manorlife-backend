@@ -22,14 +22,15 @@ export class AuthService {
 		});
 
 		if (user?.phone === body.phone) {
-			throw new BadRequestException({ message: "This phone has been used" });
+			throw new BadRequestException({ message: "Số điện thoại này đã được sử dụng" });
 		} else if (user?.email === body.email) {
-			throw new BadRequestException({ message: "This email has been used" });
+			throw new BadRequestException({ message: "Địa chỉ email này đã được sử dụng" });
 		} else {
 			const hashedPassword = await hash(body.password, 10);
 
 			const data = await this.prisma.user.create({
 				data: {
+					fullname: body.fullname,
 					email: body.email,
 					phone: body.phone,
 					password: hashedPassword,
@@ -38,7 +39,7 @@ export class AuthService {
 			});
 
 			return {
-				message: "Created account successfully",
+				message: "Tạo tài khoản thành công",
 				data,
 			};
 		}
@@ -50,15 +51,15 @@ export class AuthService {
 			include: { auth: { where: { auth_type: "email" } } },
 		});
 		if (!user) {
-			throw new BadRequestException({ message: "User not found" });
+			throw new BadRequestException({ message: "Người dùng không tồn tại" });
 		}
 
 		if (user.roles.includes("verified_email")) {
-			throw new BadRequestException({ message: "User verified" });
+			throw new BadRequestException({ message: "Người dùng đã xác minh rồi" });
 		}
 
 		if (new Date(user.auth[0]?.last_sent_at).getTime() + 60_000 > Date.now()) {
-			throw new HttpException({ message: "Too many requests" }, HttpStatus.TOO_MANY_REQUESTS);
+			throw new HttpException({ message: "Gửi quá nhiều lần" }, HttpStatus.TOO_MANY_REQUESTS);
 		}
 
 		const code = generateOTP();
@@ -87,11 +88,11 @@ export class AuthService {
 			});
 
 			return {
-				message: "Accept verify request, check your email",
+				message: "Chấp nhận yêu cầu, kiểm tra hòm thư của bạn",
 			};
 		} catch (error) {
 			console.error(error);
-			throw new InternalServerErrorException({ message: "Internal server error" });
+			throw new InternalServerErrorException({ message: "Server gặp trục trặc, thử lại sau" });
 		}
 	};
 
@@ -102,26 +103,26 @@ export class AuthService {
 			omit: { password: true },
 		});
 		if (!user) {
-			throw new BadRequestException({ message: "User not found" });
+			throw new BadRequestException({ message: "Người dùng không tồn tại" });
 		}
 
 		if (user.roles.includes("verified_email")) {
-			throw new BadRequestException({ message: "User verified" });
+			throw new BadRequestException({ message: "Người dùng đã xác minh rồi" });
 		}
 
 		if (user.auth[0]?.auth_type !== "email") {
-			throw new BadRequestException({ message: "Invalid request" });
+			throw new BadRequestException({ message: "Yêu cầu không hợp lệ" });
 		}
 
 		if (new Date(user.auth[0]?.last_sent_at).getTime() + 60_000 * 5 <= Date.now()) {
-			throw new BadRequestException({ message: "Request expired" });
+			throw new BadRequestException({ message: "Yêu cầu hết hạn" });
 		}
 
 		if (
 			user.auth[0]?.code !== query.identify &&
 			this.jwt.verify(query.identify, { secret: process.env.AUTH_TOKEN_SECRET_KEY }) !== user.auth[0]?.code
 		) {
-			throw new BadRequestException({ message: "Invalid request" });
+			throw new BadRequestException({ message: "Yêu cầu không hợp lệ" });
 		}
 
 		try {
@@ -137,12 +138,12 @@ export class AuthService {
 			const { auth, ...data } = user;
 
 			return {
-				message: "Verified successfully",
+				message: "Xác minh thành công",
 				data,
 			};
 		} catch (error) {
 			console.error(error);
-			throw new InternalServerErrorException({ message: "Internal server error" });
+			throw new InternalServerErrorException({ message: "Server gặp trục trặc, thử lại sau" });
 		}
 	};
 
@@ -152,18 +153,18 @@ export class AuthService {
 		});
 
 		if (!user) {
-			throw new BadRequestException({ message: "Email or phone not found" });
+			throw new BadRequestException({ message: "Địa chỉ email hoặc số điện thoại không tồn tại" });
 		}
 
 		const isMatches = await compare(body.password, user.password);
 
 		if (!isMatches) {
-			throw new UnauthorizedException({ message: "Password does not matches" });
+			throw new UnauthorizedException({ message: "Mật khẩu không khớp" });
 		}
 
 		if (!user.roles.includes("verified_email")) {
 			throw new UnauthorizedException({
-				message: "User is not verified",
+				message: "Người dùng chưa xác thực",
 				data: { user_id: user.user_id },
 			});
 		}
@@ -177,7 +178,7 @@ export class AuthService {
 		const { password, ...data } = user;
 
 		return {
-			message: "Logined sucessfully",
+			message: "Đăng nhập thành công",
 			data,
 			"@auth": token,
 		};

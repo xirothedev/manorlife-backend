@@ -19,6 +19,7 @@ import { BookingController } from "./booking/booking.controller";
 import { BookingModule } from "./booking/booking.module";
 import { BookingService } from "./booking/booking.service";
 import { BankService } from "./bank.service";
+import { ScheduleModule } from "@nestjs/schedule";
 
 @Module({
 	imports: [
@@ -32,6 +33,7 @@ import { BankService } from "./bank.service";
 		UsersModule,
 		AdminModule,
 		BookingModule,
+		ScheduleModule.forRoot(),
 	],
 	controllers: [
 		AppController,

@@ -20,7 +20,7 @@ export class BookingService {
 		body.checkout = new Date(body.checkout);
 
 		if (!room) {
-			throw new BadRequestException({ message: "Room not found" });
+			throw new BadRequestException({ message: "Phòng không tồn tại" });
 		}
 
 		if (body.type === "help_set" && (!body.email_customer || !body.phone_customer || !body.fullname_customer)) {
@@ -36,11 +36,11 @@ export class BookingService {
 		}
 
 		if (body.checkin.getTime() <= Date.now()) {
-			throw new BadRequestException({ message: "Invalid checkin time" });
+			throw new BadRequestException({ message: "Thời gian checkin không hợp lệ" });
 		}
 
 		if (body.checkout.getTime() <= Date.now() || body.checkout.getTime() <= body.checkin.getTime()) {
-			throw new BadRequestException({ message: "Invalid checkout time" });
+			throw new BadRequestException({ message: "Thời gian checkout không hợp lệ" });
 		}
 
 		const unit = body.range === "months" ? room.price_per_month : room.price_per_night;
@@ -67,7 +67,7 @@ export class BookingService {
 		);
 
 		return {
-			message: "Created booking successfully",
+			message: "Tạo đơn đặt phòng thành công",
 			data: { ...data, qrUrl: bank.data.checkoutUrl, qrCode: bank.data.qrCode },
 		};
 	}

@@ -13,7 +13,7 @@ export class UsersController {
 	@UseGuards(AuthGuard)
 	me(@Req() req) {
 		return {
-			message: "Get own data successfully",
+			message: "Lấy thông tin bản thân thành công",
 			data: req.user,
 		};
 	}

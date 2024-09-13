@@ -13,6 +13,11 @@ import {
 export class RegisterDto {
 	@ApiProperty()
 	@IsNotEmpty()
+	@IsString()
+	fullname: string;
+
+	@ApiProperty()
+	@IsNotEmpty()
 	@IsEmail()
 	email: string;
 

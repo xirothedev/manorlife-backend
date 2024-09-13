@@ -9,18 +9,19 @@ datasource db {
 }
 
 model User {
-  user_id        String     @id @default(uuid())
-  email          String     @unique
-  phone          String     @unique
-  password       String
-  nights         Int        @default(0)
-  books          Int        @default(0)
-  create_at      DateTime   @default(now())
-  update_at      DateTime   @updatedAt
-  roles          UserRole[]
-  auth Auth[]
-  booking        Booking[]
-  session        Session[]
+  user_id   String     @id @default(uuid())
+  email     String     @unique
+  phone     String     @unique
+  fullname  String
+  password  String
+  nights    Int        @default(0)
+  books     Int        @default(0)
+  create_at DateTime   @default(now())
+  update_at DateTime   @updatedAt
+  roles     UserRole[]
+  auth      Auth[]
+  booking   Booking[]
+  session   Session[]
 
   @@index([email], type: Hash)
   @@index([phone], type: Hash)
