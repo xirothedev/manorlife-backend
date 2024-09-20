@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Ip, Post, Query, Req, Res } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { Request, Response } from "express";
-import { GetVerifyDto, LoginDto, PostVerifyDto, RegisterDto } from "./auth.dto";
+import { GetVerifyDto, LoginDto, PostRecoveryDto, PostVerifyDto, RegisterDto } from "./auth.dto";
 import { AuthService } from "./auth.service";
 
 @ApiTags("auth")
@@ -29,5 +29,11 @@ export class AuthController {
 	@Post("login")
 	login(@Body() body: LoginDto, @Req() req: Request, @Res({ passthrough: true }) res: Response, @Ip() ip: string) {
 		return this.service.login(body, req, res, ip);
+	}
+
+	@HttpCode(HttpStatus.OK)
+	@Post("recovery")
+	postRecovery(@Body() body: PostRecoveryDto) {
+		return this.service.postRecovery(body)
 	}
 }

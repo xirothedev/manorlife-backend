@@ -18,8 +18,8 @@ model User {
   books     Int        @default(0)
   create_at DateTime   @default(now())
   update_at DateTime   @updatedAt
+  auth      Auth?
   roles     UserRole[]
-  auth      Auth[]
   booking   Booking[]
   session   Session[]
 
@@ -28,41 +28,53 @@ model User {
 }
 
 model Room {
-  room_id         String            @id @default(cuid())
+  room_id         String     @id @default(cuid())
+  branch          Branch     @relation(fields: [branch_id], references: [branch_id], onDelete: Cascade, onUpdate: Cascade)
+  branch_id       String
   price_per_night Int
   price_per_month Int
   trademark       TradeMark
   name            String
   description     String
   comforts        Comport[]
-  location        String
-  status          RoomStatus        @default(available)
+  booking_turn    Int        @default(0)
+  status          RoomStatus @default(available)
+  stock           Int
   images          String[]
   booking         Booking[]
-  SurroundingArea SurroundingArea[]
+}
+
+model Branch {
+  branch_id        String            @id
+  name             String            @unique
+  description      String
+  best_comforts    Comport[]
+  location         String
+  images           String[]
+  rooms            Room[]
+  surrounding_area SurroundingArea[]
 }
 
 model SurroundingArea {
-  area_id  String @id @default(cuid())
+  area_id  String   @id @default(cuid())
   name     String
   distance String
-  Room     Room[]
+  branch   Branch[]
 }
 
 model Auth {
-  auth_id      String   @id @default(cuid())
-  user_id      String
+  auth_id      String   @id
+  user         User     @relation(fields: [auth_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
   last_sent_at DateTime
   code         String
   auth_type    AuthType
-  user         User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 }
 
 model Booking {
   booking_id        String        @id @default(cuid())
   accepted          Boolean       @default(false)
   user_id           String?
-  user              User?         @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  user              User?         @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
   adults            Int           @default(1)
   children          Int           @default(0)
   checkin           DateTime
@@ -82,7 +94,7 @@ model Booking {
   order_code        Int           @unique @default(autoincrement())
   range             BookingRange
   status            BookingStatus @default(pending)
-  room              Room          @relation(fields: [room_id], references: [room_id], onDelete: Cascade)
+  room              Room          @relation(fields: [room_id], references: [room_id], onDelete: Cascade, onUpdate: Cascade)
   room_id           String
 }
 
@@ -92,5 +104,5 @@ model Session {
   device_data String?
   ip          String?
   user_id     String
-  user        User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  user        User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
 }

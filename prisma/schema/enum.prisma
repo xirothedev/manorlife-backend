@@ -4,6 +4,7 @@ enum UserRole {
   platinum
   gold
   silver
+  bronze
   new
   verified_email
   verified_phone
@@ -13,6 +14,7 @@ enum UserRole {
 enum AuthType {
   email
   phone
+  recovery
 }
 
 enum Comport {

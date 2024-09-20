@@ -1,25 +1,28 @@
 import { Module } from "@nestjs/common";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
-import { PaymentController } from "./payment/payment.controller";
-import { PaymentModule } from "./payment/payment.module";
 import { ConfigModule } from "@nestjs/config";
-import { AuthController } from "./auth/auth.controller";
-import { AuthService } from "./auth/auth.service";
-import { AuthModule } from "./auth/auth.module";
-import { UsersController } from "./users/users.controller";
-import { UsersModule } from "./users/users.module";
+import { JwtService } from "@nestjs/jwt";
+import { ScheduleModule } from "@nestjs/schedule";
 import { AdminController } from "./admin/admin.controller";
 import { AdminModule } from "./admin/admin.module";
-import { JwtService } from "@nestjs/jwt";
-import { PrismaService } from "./prisma.service";
-import { UsersService } from "./users/users.service";
 import { AdminService } from "./admin/admin.service";
+import { AppController } from "./app.controller";
+import { AppService, MediaSerivce } from "./app.service";
+import { AuthController } from "./auth/auth.controller";
+import { AuthModule } from "./auth/auth.module";
+import { AuthService } from "./auth/auth.service";
+import { BankService } from "./bank.service";
 import { BookingController } from "./booking/booking.controller";
 import { BookingModule } from "./booking/booking.module";
 import { BookingService } from "./booking/booking.service";
-import { BankService } from "./bank.service";
-import { ScheduleModule } from "@nestjs/schedule";
+import { PaymentController } from "./payment/payment.controller";
+import { PaymentModule } from "./payment/payment.module";
+import { PrismaService } from "./prisma.service";
+import { RoomController } from "./room/room.controller";
+import { RoomModule } from "./room/room.module";
+import { RoomService } from "./room/room.service";
+import { UsersController } from "./users/users.controller";
+import { UsersModule } from "./users/users.module";
+import { UsersService } from "./users/users.service";
 
 @Module({
 	imports: [
@@ -34,6 +37,7 @@ import { ScheduleModule } from "@nestjs/schedule";
 		AdminModule,
 		BookingModule,
 		ScheduleModule.forRoot(),
+		RoomModule,
 	],
 	controllers: [
 		AppController,
@@ -42,6 +46,7 @@ import { ScheduleModule } from "@nestjs/schedule";
 		UsersController,
 		AdminController,
 		BookingController,
+		RoomController,
 	],
 	providers: [
 		AppService,
@@ -52,6 +57,8 @@ import { ScheduleModule } from "@nestjs/schedule";
 		JwtService,
 		PrismaService,
 		BankService,
+		RoomService,
+		MediaSerivce
 	],
 })
 export class AppModule {}

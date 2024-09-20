@@ -2,12 +2,12 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { compare, hash } from "bcrypt";
 import { Request, Response } from "express";
-import { sendVerificationEmail } from "src/utils/email";
+import { sendPasswordEmail, sendRecoveryEmail, sendVerificationEmail } from "src/utils/email";
 import { BadRequestException, InternalServerErrorException, UnauthorizedException } from "src/exception";
 import { PrismaService } from "src/prisma.service";
-import { generateOTP } from "src/utils/helper";
+import { createString, generateOTP } from "src/utils/helper";
 import { signNewSession } from "src/utils/tokenize";
-import { GetVerifyDto, LoginDto, PostVerifyDto, RegisterDto } from "./auth.dto";
+import { GetVerifyDto, LoginDto, PostRecoveryDto, PostVerifyDto, RegisterDto } from "./auth.dto";
 
 @Injectable()
 export class AuthService {
@@ -58,7 +58,7 @@ export class AuthService {
 			throw new BadRequestException({ message: "Người dùng đã xác minh rồi" });
 		}
 
-		if (new Date(user.auth[0]?.last_sent_at).getTime() + 60_000 > Date.now()) {
+		if (new Date(user.auth?.last_sent_at).getTime() + 60_000 > Date.now()) {
 			throw new HttpException({ message: "Gửi quá nhiều lần" }, HttpStatus.TOO_MANY_REQUESTS);
 		}
 
@@ -68,7 +68,7 @@ export class AuthService {
 
 		try {
 			await this.prisma.auth.upsert({
-				where: { auth_id: user.auth[0].auth_id },
+				where: { auth_id: user?.auth?.auth_id || "" },
 				update: {
 					auth_type: "email",
 					last_sent_at: new Date(),
@@ -102,6 +102,7 @@ export class AuthService {
 			include: { auth: { where: { auth_type: "email" } } },
 			omit: { password: true },
 		});
+
 		if (!user) {
 			throw new BadRequestException({ message: "Người dùng không tồn tại" });
 		}
@@ -110,17 +111,17 @@ export class AuthService {
 			throw new BadRequestException({ message: "Người dùng đã xác minh rồi" });
 		}
 
-		if (user.auth[0]?.auth_type !== "email") {
+		if (user.auth?.auth_type !== "email") {
 			throw new BadRequestException({ message: "Yêu cầu không hợp lệ" });
 		}
 
-		if (new Date(user.auth[0]?.last_sent_at).getTime() + 60_000 * 5 <= Date.now()) {
+		if (new Date(user.auth?.last_sent_at).getTime() + 60_000 * 5 <= Date.now()) {
 			throw new BadRequestException({ message: "Yêu cầu hết hạn" });
 		}
 
 		if (
-			user.auth[0]?.code !== query.identify &&
-			this.jwt.verify(query.identify, { secret: process.env.AUTH_TOKEN_SECRET_KEY }) !== user.auth[0]?.code
+			user.auth?.code !== query.identify &&
+			this.jwt.verify(query.identify, { secret: process.env.AUTH_TOKEN_SECRET_KEY }) !== user.auth?.code
 		) {
 			throw new BadRequestException({ message: "Yêu cầu không hợp lệ" });
 		}
@@ -130,7 +131,7 @@ export class AuthService {
 				where: { user_id: query.user_id },
 				data: {
 					roles: { push: "verified_email" },
-					auth: { delete: { auth_id: user.auth[0].auth_id } },
+					auth: { delete: { auth_id: user.auth.auth_id } },
 				},
 			});
 
@@ -182,5 +183,92 @@ export class AuthService {
 			data,
 			"@auth": token,
 		};
+	};
+
+	async postRecovery(body: PostRecoveryDto) {
+		const user = await this.prisma.user.findUnique({ where: { email: body.email }, include: { auth: true } });
+
+		if (!user) {
+			throw new BadRequestException({ message: "Người dùng không tồn tại" });
+		}
+
+		if (new Date(user.auth?.last_sent_at).getTime() + 60_000 > Date.now()) {
+			throw new HttpException({ message: "Gửi quá nhiều lần" }, HttpStatus.TOO_MANY_REQUESTS);
+		}
+
+		const code = generateOTP();
+
+		const state = await this.jwt.signAsync(code, { secret: process.env.AUTH_TOKEN_SECRET_KEY });
+
+		try {
+			await this.prisma.auth.upsert({
+				where: { auth_id: user?.auth?.auth_id || "" },
+				update: {
+					auth_type: "recovery",
+					last_sent_at: new Date(),
+					code,
+				},
+				create: {
+					auth_type: "recovery",
+					last_sent_at: new Date(),
+					code,
+					user: { connect: { user_id: user.user_id } },
+				},
+			});
+
+			await sendRecoveryEmail(user.email, {
+				code,
+				oauth: `${process.env.APPLICATION_BASE_URL}/auth/verify/email?user_id=${user.user_id}&identify=${state}`,
+			});
+
+			return {
+				message: "Chấp nhận yêu cầu, kiểm tra hòm thư của bạn",
+			};
+		} catch (error) {
+			console.error(error);
+			throw new InternalServerErrorException({ message: "Server gặp trục trặc, thử lại sau" });
+		}
+	}
+
+	getRecovery = async (query: GetVerifyDto) => {
+		const user = await this.prisma.user.findUnique({
+			where: { user_id: query.user_id },
+			include: { auth: { where: { auth_type: "recovery" } } },
+			omit: { password: true },
+		});
+
+		if (!user) {
+			throw new BadRequestException({ message: "Người dùng không tồn tại" });
+		}
+
+		if (user.auth?.auth_type !== "recovery") {
+			throw new BadRequestException({ message: "Yêu cầu không hợp lệ" });
+		}
+
+		if (new Date(user.auth?.last_sent_at).getTime() + 60_000 * 5 <= Date.now()) {
+			throw new BadRequestException({ message: "Yêu cầu hết hạn" });
+		}
+
+		if (
+			user.auth?.code !== query.identify &&
+			this.jwt.verify(query.identify, { secret: process.env.AUTH_TOKEN_SECRET_KEY }) !== user.auth?.code
+		) {
+			throw new BadRequestException({ message: "Yêu cầu không hợp lệ" });
+		}
+
+		try {
+			const newPassword = createString();
+			const hashedPassword = await hash(newPassword, 10);
+			await this.prisma.user.update({ where: { user_id: user.user_id }, data: { password: hashedPassword } });
+
+			await sendPasswordEmail(user.email, { password: newPassword });
+
+			return {
+				message: "Đã gửi mật khẩu mới, kiểm tra hòm thư!",
+			};
+		} catch (error) {
+			console.error(error);
+			throw new InternalServerErrorException({ message: "Server gặp trục trặc, thử lại sau" });
+		}
 	};
 }

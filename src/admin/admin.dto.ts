@@ -7,7 +7,7 @@ import {
 	IsNotEmpty,
 	IsNumberString,
 	IsPhoneNumber,
-	IsUUID,
+	IsString,
 	MaxLength,
 	MinLength
 } from "class-validator";
@@ -39,7 +39,7 @@ export class BookingsDto {
 
 export class EditUserDto {
 	@ApiProperty()
-	@IsUUID(7)
+	@IsString()
 	@IsNotEmpty()
 	user_id: string;
 

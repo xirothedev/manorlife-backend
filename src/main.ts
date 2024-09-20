@@ -8,16 +8,18 @@ import { join } from "path";
 
 async function bootstrap() {
 	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-		cors: {
-			preflightContinue: true,
-			origin: ["manorlife.vn", "cms.manorlife.vn"],
-			allowedHeaders: "*",
-			methods: "*"
-		},
+		cors: { credentials: true, origin: true },
 	});
 	app.use(cookieParser(process.env.COOKIE_SECRET_KEY));
 	app.useGlobalPipes(new ValidationPipe());
 	app.useStaticAssets(join(__dirname, "..", "public"));
+	// app.enableCors({
+	// 	allowedHeaders: ['Content-Type', 'Authorization'],
+	// 	credentials: true,
+	// 	methods: "*",
+	// 	origin: ["localhost"],
+	// 	preflightContinue: true,
+	// });
 	SwaggerModule.setup(
 		"docs",
 		app,
@@ -31,6 +33,7 @@ async function bootstrap() {
 				.addTag("admin")
 				.addTag("payment")
 				.addTag("booking")
+				.addTag("room")
 				.addBearerAuth()
 				.build(),
 		),
