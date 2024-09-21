@@ -54,7 +54,8 @@ export class BookingService {
 			data: {
 				...(req?.user ? { user_id: req.user.user_id } : {}),
 				...body,
-				amount: cost,
+				// amount: cost,
+				amount: 5000,
 			},
 		});
 

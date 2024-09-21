@@ -9,19 +9,20 @@ datasource db {
 }
 
 model User {
-  user_id   String     @id @default(uuid())
-  email     String     @unique
-  phone     String     @unique
-  fullname  String
-  password  String
-  nights    Int        @default(0)
-  books     Int        @default(0)
-  create_at DateTime   @default(now())
-  update_at DateTime   @updatedAt
-  auth      Auth?
-  roles     UserRole[]
-  booking   Booking[]
-  session   Session[]
+  user_id     String     @id @default(uuid())
+  email       String     @unique
+  phone       String     @unique
+  fullname    String
+  password    String
+  nationality Country?
+  nights      Int        @default(0)
+  books       Int        @default(0)
+  create_at   DateTime   @default(now())
+  update_at   DateTime   @updatedAt
+  auth        Auth?
+  roles       UserRole[]
+  booking     Booking[]
+  session     Session[]
 
   @@index([email], type: Hash)
   @@index([phone], type: Hash)
@@ -33,7 +34,6 @@ model Room {
   branch_id       String
   price_per_night Int
   price_per_month Int
-  trademark       TradeMark
   name            String
   description     String
   comforts        Comport[]
@@ -45,9 +45,12 @@ model Room {
 }
 
 model Branch {
-  branch_id        String            @id
+  branch_id        String            @id @default(cuid())
   name             String            @unique
   description      String
+  trademark        TradeMark
+  province         Province?
+  ward             Ward?
   best_comforts    Comport[]
   location         String
   images           String[]
@@ -56,10 +59,11 @@ model Branch {
 }
 
 model SurroundingArea {
-  area_id  String   @id @default(cuid())
-  name     String
-  distance String
-  branch   Branch[]
+  area_id   String @id @default(cuid())
+  name      String
+  distance  String
+  branch    Branch @relation(fields: [branch_id], references: [branch_id], onDelete: Cascade, onUpdate: Cascade)
+  branch_id String
 }
 
 model Auth {

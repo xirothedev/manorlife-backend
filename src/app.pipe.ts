@@ -7,7 +7,7 @@ import { BadRequestException } from "./exception";
 export class SharpPipe implements PipeTransform<Express.Multer.File, Promise<string>> {
 	async transform(image: Express.Multer.File): Promise<string> {
 		if (!image) {
-			throw new BadRequestException({ message: "Unexpected field" });
+			throw new BadRequestException({ message: "Thiếu trường hình ảnh" });
 		}
 		const originalName = path.parse(image.originalname).name;
 		const filename = Date.now() + "-" + originalName + ".webp";

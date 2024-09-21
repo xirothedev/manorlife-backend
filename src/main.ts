@@ -34,6 +34,7 @@ async function bootstrap() {
 				.addTag("payment")
 				.addTag("booking")
 				.addTag("room")
+				.addTag('branch')
 				.addBearerAuth()
 				.build(),
 		),

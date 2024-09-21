@@ -35,16 +35,19 @@ export class RoomService {
 			throw new BadRequestException({ message: "Chi nhánh không tồn tại" });
 		}
 
+		if(!images || images.length === 0) {
+      throw new BadRequestException({message: "Vui lòng cung cấp hình ảnh"})
+    }
+
 		const files = await Promise.all(images.map(this.media.transform));
 
 		const data = await this.prisma.room.create({
 			data: {
 				name: body.name,
 				description: body.description,
-				price_per_month: body.price_per_month,
-				price_per_night: body.price_per_night,
-				stock: body.stock,
-				trademark: body.trademark,
+				price_per_month: +body.price_per_month,
+				price_per_night: +body.price_per_night,
+				stock: +body.stock,
 				branch_id: branch.branch_id,
 				images: files,
 			},
@@ -71,18 +74,22 @@ export class RoomService {
 			throw new BadRequestException({ message: "Chi nhánh không tồn tại" });
 		}
 
+		if(!images || images.length === 0) {
+      throw new BadRequestException({message: "Vui lòng cung cấp hình ảnh"})
+    }
+
 		await Promise.all(room.images.map(async (image) => await unlink(path.join("public", image))));
 
 		const files = await Promise.all(images.map(this.media.transform));
 
-		const data = await this.prisma.room.create({
+		const data = await this.prisma.room.update({
+			where: { room_id: body.room_id },
 			data: {
 				name: body.name,
 				description: body.description,
 				price_per_month: body.price_per_month,
 				price_per_night: body.price_per_night,
 				stock: body.stock,
-				trademark: body.trademark,
 				branch_id: branch.branch_id,
 				images: files,
 			},

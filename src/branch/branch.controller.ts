@@ -6,6 +6,7 @@ import {
 	Param,
 	Post,
 	Put,
+	Query,
 	UploadedFiles,
 	UseGuards,
 	UseInterceptors,
@@ -14,18 +15,17 @@ import { FilesInterceptor } from "@nestjs/platform-express";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Roles } from "src/app.decorator";
 import { AuthGuard, RolesGuard } from "src/app.guard";
-import { CreateRoomDto, EditRoomDto } from "./room.dto";
-import { RoomService } from "./room.service";
-import {} from "src/app.pipe";
+import { CreateBranchDto, EditBranchDto, GetBranchDto } from "./branch.dto";
+import { BranchService } from "./branch.service";
 
-@ApiTags("room")
-@Controller("room")
-export class RoomController {
-	constructor(private service: RoomService) {}
+@ApiTags("branch")
+@Controller("branch")
+export class BranchController {
+	constructor(private service: BranchService) {}
 
 	@Get("")
-	getRoom(@Param() param: string) {
-		return this.service.getRoom(param);
+	getBranch(@Query() query: GetBranchDto) {
+		return this.service.getBranch(query);
 	}
 
 	@Post("")
@@ -33,8 +33,8 @@ export class RoomController {
 	@UseGuards(AuthGuard, RolesGuard)
 	@Roles("administrator")
 	@UseInterceptors(FilesInterceptor("images"))
-	createRoom(@Body() body: CreateRoomDto, @UploadedFiles() images: Array<Express.Multer.File>) {
-		return this.service.createRoom(body, images);
+	createBranch(@Body() body: CreateBranchDto, @UploadedFiles() images: Array<Express.Multer.File>) {
+		return this.service.createBranch(body, images);
 	}
 
 	@Put("")
@@ -42,7 +42,7 @@ export class RoomController {
 	@UseGuards(AuthGuard, RolesGuard)
 	@Roles("administrator")
 	@UseInterceptors(FilesInterceptor("images"))
-	editRoom(@Body() body: EditRoomDto, @UploadedFiles() images: Array<Express.Multer.File>) {
+	editBranch(@Body() body: EditBranchDto, @UploadedFiles() images: Array<Express.Multer.File>) {
 		return this.service.editRoom(body, images);
 	}
 
@@ -51,6 +51,6 @@ export class RoomController {
 	@UseGuards(AuthGuard, RolesGuard)
 	@Roles("administrator")
 	deleteRoom(@Param() param: string) {
-		return this.service.deleteRoom(param);
+		return this.service.deleteBranch(param);
 	}
 }

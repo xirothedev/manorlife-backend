@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { PrismaService } from "./prisma.service";
-import path from "path";
-import sharp from "sharp";
+import * as path from "path";
+import * as sharp from "sharp";
 @Injectable()
 export class AppService {
 	getHello(): string {
@@ -31,9 +31,9 @@ export class TasksService {
 export class MediaSerivce {
 	async transform(image: Express.Multer.File): Promise<string> {
 		if (!image) {
-			throw new BadRequestException({ message: "Unexpected field" });
+			throw new BadRequestException({ message: "Thiếu trường hình ảnh" });
 		}
-		const originalName = path.parse(image.originalname).name;
+		const originalName = image.originalname;
 		const filename = Date.now() + "-" + originalName + ".webp";
 		const fullPath = path.join("media", filename);
 
