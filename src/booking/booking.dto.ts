@@ -6,13 +6,27 @@ import {
 	IsEnum,
 	IsNotEmpty,
 	IsNumber,
+	IsNumberString,
+	IsOptional,
 	IsPhoneNumber,
 	IsString,
 	Max,
 	MaxLength,
-	Min
+	Min,
 } from "class-validator";
 import { IsNullable } from "src/app.validator";
+
+export class BookingsDto {
+	@ApiProperty()
+	@IsNumberString()
+	@IsOptional()
+	count?: string;
+
+	@ApiProperty()
+	@IsNumberString()
+	@IsOptional()
+	page?: string;
+}
 
 export class CreateBookingDto {
 	@ApiProperty()

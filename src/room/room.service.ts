@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import { BadRequestException } from "src/exception";
-import { PrismaService } from "src/prisma.service";
-import { CreateRoomDto, EditRoomDto } from "./room.dto";
 import { unlink } from "fs/promises";
 import path from "path";
-import { MediaSerivce } from "src/app.service";
+import { BadRequestException } from "src/exception";
+import { MediaSerivce } from "src/media.service";
+import { PrismaService } from "src/prisma.service";
+import { CreateRoomDto, EditRoomDto } from "./room.dto";
 
 @Injectable()
 export class RoomService {
@@ -12,20 +12,7 @@ export class RoomService {
 		private prisma: PrismaService,
 		private media: MediaSerivce,
 	) {}
-
-	async getRoom(param: string) {
-		const branch = await this.prisma.branch.findUnique({ where: { branch_id: param }, include: { rooms: true } });
-
-		if (!branch) {
-			throw new BadRequestException({ message: "Phòng không tồn tại" });
-		}
-
-		return {
-			message: `Đã tìm thấy ${branch.rooms.length} phòng`,
-			data: branch.rooms,
-		};
-	}
-
+	
 	async createRoom(body: CreateRoomDto, images: Array<Express.Multer.File>) {
 		const branch = await this.prisma.branch.findFirst({
 			where: { OR: [{ branch_id: body.branch }, { name: body.branch }] },
@@ -35,9 +22,9 @@ export class RoomService {
 			throw new BadRequestException({ message: "Chi nhánh không tồn tại" });
 		}
 
-		if(!images || images.length === 0) {
-      throw new BadRequestException({message: "Vui lòng cung cấp hình ảnh"})
-    }
+		if (!images || images.length === 0) {
+			throw new BadRequestException({ message: "Vui lòng cung cấp hình ảnh" });
+		}
 
 		const files = await Promise.all(images.map(this.media.transform));
 
@@ -45,11 +32,20 @@ export class RoomService {
 			data: {
 				name: body.name,
 				description: body.description,
+				acreage: +body.acreage,
 				price_per_month: +body.price_per_month,
 				price_per_night: +body.price_per_night,
 				stock: +body.stock,
+				comforts: { set: body.comforts },
 				branch_id: branch.branch_id,
+				max_adults: +body.max_adults,
+				max_children: +body.max_children,
+				max_babies: +body.max_babies,
 				images: files,
+				bed_type: body.bed_type,
+				status: body.status,
+				available_from: new Date(+body.available_from),
+				available_to: new Date(+body.available_to),
 			},
 		});
 
@@ -74,9 +70,9 @@ export class RoomService {
 			throw new BadRequestException({ message: "Chi nhánh không tồn tại" });
 		}
 
-		if(!images || images.length === 0) {
-      throw new BadRequestException({message: "Vui lòng cung cấp hình ảnh"})
-    }
+		if (!images || images.length === 0) {
+			throw new BadRequestException({ message: "Vui lòng cung cấp hình ảnh" });
+		}
 
 		await Promise.all(room.images.map(async (image) => await unlink(path.join("public", image))));
 

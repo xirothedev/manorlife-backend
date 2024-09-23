@@ -2,7 +2,7 @@ import { CookieOptions } from "express";
 import { createTransport } from "nodemailer";
 
 export const cookieConfigs: CookieOptions = {
-	domain: "localhost",
+	domain: ".manorlife.vn",
 	path: "/",
 	httpOnly: true,
 	secure: true,

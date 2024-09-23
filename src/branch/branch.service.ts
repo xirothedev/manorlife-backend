@@ -1,10 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "src/prisma.service";
-import { CreateBranchDto, EditBranchDto, GetBranchDto } from "./branch.dto";
-import { BadRequestException } from "src/exception";
-import { MediaSerivce } from "src/app.service";
 import { unlink } from "fs/promises";
 import path from "path";
+import { BadRequestException } from "src/exception";
+import { MediaSerivce } from "src/media.service";
+import { PrismaService } from "src/prisma.service";
+import { CreateBranchDto, EditBranchDto, GetBranchsDto } from "./branch.dto";
+import { Ward } from "@prisma/client";
 
 @Injectable()
 export class BranchService {
@@ -13,14 +14,28 @@ export class BranchService {
 		private media: MediaSerivce,
 	) {}
 
-	async getBranch(query: GetBranchDto) {
-		const branchs = this.prisma.branch.findMany({
-			where: { province: query.province, ward: query.ward, trademark: query.trademark },
+	async getBranch(query: GetBranchsDto) {
+		const branchs = await this.prisma.branch.findMany({
+			where: {
+				province: query.province || undefined,
+				ward: { in: (query.ward?.split(",") as Ward[]) || undefined },
+				trademark: query.trademark || undefined,
+				rooms: {
+					some: {
+						available_from: { lte: query.from ? new Date(+query.from) : undefined, not: null },
+						available_to: { gte: query.to ? new Date(+query.to) : undefined, not: null },
+						max_adults: { gte: +query.adults || undefined },
+						max_children: { gte: +query.children || undefined },
+						max_babies: { gte: +query.babies || undefined },
+						OR: [{ status: "available" }, { status: "almost_full" }],
+					},
+				},
+			},
 			include: { rooms: true },
 		});
 
 		return {
-			message: `Đã lấy ${branchs} chi nhánh thành công`,
+			message: `Đã lấy ${branchs.length} chi nhánh thành công`,
 			data: branchs,
 		};
 	}
@@ -45,6 +60,7 @@ export class BranchService {
 				name: body.name,
 				description: body.description,
 				images: files,
+				url: body.url,
 				location: body.location,
 				trademark: body.trademark,
 				best_comforts: body.best_comforts,

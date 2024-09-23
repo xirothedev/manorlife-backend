@@ -1,15 +1,15 @@
-import { Injectable, PipeTransform } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+import { BadRequestException } from "./exception";
 import * as path from "path";
 import * as sharp from "sharp";
-import { BadRequestException } from "./exception";
 
 @Injectable()
-export class SharpPipe implements PipeTransform<Express.Multer.File, Promise<string>> {
+export class MediaSerivce {
 	async transform(image: Express.Multer.File): Promise<string> {
 		if (!image) {
 			throw new BadRequestException({ message: "Thiếu trường hình ảnh" });
 		}
-		const originalName = path.parse(image.originalname).name;
+		const originalName = image.originalname;
 		const filename = Date.now() + "-" + originalName + ".webp";
 		const fullPath = path.join("media", filename);
 

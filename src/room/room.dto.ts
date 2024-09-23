@@ -1,6 +1,15 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { RoomStatus, Comport, TradeMark } from "@prisma/client";
-import { IsEnum, IsNotEmpty, IsNumber, IsNumberString, IsPositive, IsString, MaxLength } from "class-validator";
+import { Comport, RoomBedType, RoomStatus, TradeMark } from "@prisma/client";
+import {
+	IsEnum,
+	IsNotEmpty,
+	IsNumber,
+	IsNumberString,
+	IsOptional,
+	IsPositive,
+	IsString,
+	MaxLength,
+} from "class-validator";
 
 export class CreateRoomDto {
 	@ApiProperty()
@@ -30,26 +39,61 @@ export class CreateRoomDto {
 	description: string;
 
 	@ApiProperty()
-	@IsEnum(Comport, { each: true })
-  @IsNotEmpty()
-	comforts: Comport;
+	@IsNumberString()
+	@IsNotEmpty()
+	acreage: string;
 
 	@ApiProperty()
-  @IsEnum(RoomStatus)
-  @IsNotEmpty()
+	@IsEnum(RoomBedType)
+	@IsNotEmpty()
+	bed_type: RoomBedType;
+
+	@ApiProperty()
+	@IsEnum(Comport, { each: true })
+	@IsNotEmpty()
+	comforts: Comport[];
+
+	@ApiProperty()
+	@IsEnum(RoomStatus)
+	@IsNotEmpty()
 	status: RoomStatus;
 
 	@ApiProperty()
-  @IsNotEmpty()
-  @IsNumberString()
+	@IsNotEmpty()
+	@IsNumberString()
 	stock: string;
+
+	@ApiProperty()
+	@IsNumberString()
+	@IsNotEmpty()
+	max_adults: string;
+
+	@ApiProperty()
+	@IsNumberString()
+	@IsNotEmpty()
+	max_children: string;
+
+	@ApiProperty()
+	@IsNumberString()
+	@IsNotEmpty()
+	max_babies: string;
+
+	@ApiProperty()
+	@IsNumberString()
+	@IsOptional()
+	available_from?: string;
+
+	@ApiProperty()
+	@IsNumberString()
+	@IsOptional()
+	available_to?: string;
 }
 
 export class EditRoomDto {
 	@ApiProperty()
 	@IsString()
 	@IsNotEmpty()
-	room_id: string
+	room_id: string;
 
 	@ApiProperty()
 	@IsString()
@@ -84,16 +128,16 @@ export class EditRoomDto {
 
 	@ApiProperty()
 	@IsEnum(Comport, { each: true })
-  @IsNotEmpty()
+	@IsNotEmpty()
 	comforts: Comport;
 
 	@ApiProperty()
-  @IsEnum(RoomStatus)
-  @IsNotEmpty()
+	@IsEnum(RoomStatus)
+	@IsNotEmpty()
 	status: RoomStatus;
 
 	@ApiProperty()
-  @IsNotEmpty()
-  @IsNumber()
+	@IsNotEmpty()
+	@IsNumber()
 	stock: number;
 }

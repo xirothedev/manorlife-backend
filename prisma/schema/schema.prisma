@@ -9,37 +9,45 @@ datasource db {
 }
 
 model User {
-  user_id     String     @id @default(uuid())
-  email       String     @unique
-  phone       String     @unique
-  fullname    String
-  password    String
-  nationality Country?
-  nights      Int        @default(0)
-  books       Int        @default(0)
-  create_at   DateTime   @default(now())
-  update_at   DateTime   @updatedAt
-  auth        Auth?
-  roles       UserRole[]
-  booking     Booking[]
-  session     Session[]
+  user_id      String     @id @default(uuid())
+  email        String     @unique
+  phone        String     @unique
+  fullname     String
+  password     String
+  nationality  Country?
+  last_booking DateTime   @default(now())
+  nights       Int        @default(0)
+  books        Int        @default(0)
+  create_at    DateTime   @default(now())
+  update_at    DateTime   @updatedAt
+  auth         Auth?
+  roles        UserRole[]
+  booking      Booking[]
+  session      Session[]
 
   @@index([email], type: Hash)
   @@index([phone], type: Hash)
 }
 
 model Room {
-  room_id         String     @id @default(cuid())
-  branch          Branch     @relation(fields: [branch_id], references: [branch_id], onDelete: Cascade, onUpdate: Cascade)
+  room_id         String      @id @default(cuid())
+  branch          Branch      @relation(fields: [branch_id], references: [branch_id], onDelete: Cascade, onUpdate: Cascade)
   branch_id       String
   price_per_night Int
   price_per_month Int
   name            String
   description     String
   comforts        Comport[]
-  booking_turn    Int        @default(0)
-  status          RoomStatus @default(available)
+  bed_type        RoomBedType
+  booking_turn    Int         @default(0)
+  status          RoomStatus  @default(available)
   stock           Int
+  acreage         Int
+  available_from  DateTime?
+  available_to    DateTime?
+  max_adults      Int
+  max_children    Int
+  max_babies      Int
   images          String[]
   booking         Booking[]
 }
@@ -48,6 +56,7 @@ model Branch {
   branch_id        String            @id @default(cuid())
   name             String            @unique
   description      String
+  url              String            @unique
   trademark        TradeMark
   province         Province?
   ward             Ward?

@@ -6,7 +6,7 @@ import { sendPasswordEmail, sendRecoveryEmail, sendVerificationEmail } from "src
 import { BadRequestException, InternalServerErrorException, UnauthorizedException } from "src/exception";
 import { PrismaService } from "src/prisma.service";
 import { createString, generateOTP } from "src/utils/helper";
-import { signNewSession } from "src/utils/tokenize";
+import { revokeSession, signNewSession } from "src/utils/tokenize";
 import { GetVerifyDto, LoginDto, PostRecoveryDto, PostVerifyDto, RegisterDto } from "./auth.dto";
 
 @Injectable()
@@ -34,6 +34,7 @@ export class AuthService {
 					email: body.email,
 					phone: body.phone,
 					password: hashedPassword,
+					roles: ["bronze"],
 				},
 				omit: { password: true },
 			});
@@ -271,4 +272,46 @@ export class AuthService {
 			throw new InternalServerErrorException({ message: "Server gặp trục trặc, thử lại sau" });
 		}
 	};
+
+	async logout(req: Request, res: Response) {
+		const accessToken = req.signedCookies["access_token"];
+		if (!accessToken) {
+			throw new UnauthorizedException({ message: "Token không hợp lệ" });
+		}
+
+		try {
+			const payload = await this.jwt.verifyAsync(accessToken, {
+				secret: process.env.ACCESS_TOKEN_SECRET_KEY,
+			});
+
+			if (!payload) {
+				throw new UnauthorizedException({ message: "Token không hợp lệ" });
+			} else {
+				const session = await this.prisma.session.findUnique({
+					where: { session_id: payload.session_id },
+					include: { user: { omit: { password: true } } },
+				});
+
+				if (!session) {
+					throw new UnauthorizedException({ message: "Session không hợp lệ" });
+				}
+
+				if (new Date(payload.sign_at).getTime() + 60 * 60 * 1000 > Date.now()) {
+					if (session.user.roles.find((f) => f === "banned")) {
+						throw new UnauthorizedException({ message: "Người dùng đã bị cấm" });
+					}
+
+					await revokeSession(session.session_id, res, this.prisma);
+					return {
+						message: "Đăng xuất thành công",
+					};
+				}
+
+				throw new UnauthorizedException({ message: "Session hết hạn" });
+			}
+		} catch (e) {
+			console.log(e);
+			throw new BadRequestException({ message: "Token không hợp lệ" });
+		}
+	}
 }

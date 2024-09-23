@@ -4,7 +4,7 @@ import { Request } from "express";
 import { BankService } from "src/bank.service";
 import { BadRequestException } from "src/exception";
 import { PrismaService } from "src/prisma.service";
-import { CreateBookingDto } from "./booking.dto";
+import { BookingsDto, CreateBookingDto } from "./booking.dto";
 
 @Injectable()
 export class BookingService {
@@ -12,6 +12,28 @@ export class BookingService {
 		private prisma: PrismaService,
 		private bankService: BankService,
 	) {}
+
+	async getBookings(query: BookingsDto) {
+		if (query?.count || query?.page) {
+			const bookings = await this.prisma.booking.findMany({
+				take: +query.count || 10,
+				skip: ((+query.page || 1) - 1) * (+query.count || 10),
+				include: { user: { omit: { password: true } }, room: true },
+			});
+
+			return {
+				message: `Lấy thông tin của ${bookings.length} đơn đặt phòng thành công`,
+				data: bookings,
+			};
+		} else {
+			const bookings = await this.prisma.booking.findMany();
+
+			return {
+				message: `Lấy thông tin của ${bookings.length} đơn đặt phòng thành công`,
+				data: bookings,
+			};
+		}
+	}
 
 	async createBooking(body: CreateBookingDto, req: Request) {
 		const room = await this.prisma.room.findUnique({ where: { room_id: body.room_id } });
@@ -54,8 +76,7 @@ export class BookingService {
 			data: {
 				...(req?.user ? { user_id: req.user.user_id } : {}),
 				...body,
-				// amount: cost,
-				amount: 5000,
+				amount: cost,
 			},
 		});
 

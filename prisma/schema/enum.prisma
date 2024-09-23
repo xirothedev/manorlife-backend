@@ -5,7 +5,6 @@ enum UserRole {
   gold
   silver
   bronze
-  new
   verified_email
   verified_phone
   banned
@@ -51,6 +50,11 @@ enum RoomStatus {
   full
 }
 
+enum RoomBedType {
+  king
+  single
+}
+
 enum TradeMark {
   signature_by_m_village
   my_village_living
@@ -66,6 +70,7 @@ enum BookingType {
 enum BookingStatus {
   paid
   pending
+  done
   cancelled
 }
 

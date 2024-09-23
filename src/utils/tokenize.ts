@@ -1,3 +1,4 @@
+import { BadRequestException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Response } from "express";
 import { cookieConfigs } from "src/configs";
@@ -54,4 +55,15 @@ export const refreshSession = async (sessionId: string, res: Response, jwt: JwtS
 
 	res.cookie("access_token", accessToken, cookieConfigs);
 	res.cookie("refresh_token", refreshToken, cookieConfigs);
+};
+
+export const revokeSession = async (sessionId: string, res: Response, prisma: PrismaService) => {
+	try {
+		await prisma.session.delete({ where: { session_id: sessionId } });
+
+		res.clearCookie("access_token");
+		res.clearCookie("refresh_token");
+	} catch (error) {
+		throw new BadRequestException({ message: "Session không tồn tại" });
+	}
 };

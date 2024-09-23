@@ -5,37 +5,12 @@ import {
 	IsEmail,
 	IsEnum,
 	IsNotEmpty,
-	IsNumberString,
 	IsPhoneNumber,
 	IsString,
 	MaxLength,
 	MinLength
 } from "class-validator";
 import { IsNullable } from "src/app.validator";
-
-export class UsersDto {
-	@ApiProperty()
-	@IsNumberString()
-	@IsNotEmpty()
-	count: string;
-
-	@ApiProperty()
-	@IsNumberString()
-	@IsNotEmpty()
-	page: string;
-}
-
-export class BookingsDto {
-	@ApiProperty()
-	@IsNumberString()
-	@IsNotEmpty()
-	count: string;
-
-	@ApiProperty()
-	@IsNumberString()
-	@IsNotEmpty()
-	page: string;
-}
 
 export class EditUserDto {
 	@ApiProperty()

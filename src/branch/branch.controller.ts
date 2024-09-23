@@ -9,13 +9,13 @@ import {
 	Query,
 	UploadedFiles,
 	UseGuards,
-	UseInterceptors,
+	UseInterceptors
 } from "@nestjs/common";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Roles } from "src/app.decorator";
 import { AuthGuard, RolesGuard } from "src/app.guard";
-import { CreateBranchDto, EditBranchDto, GetBranchDto } from "./branch.dto";
+import { CreateBranchDto, EditBranchDto, GetBranchsDto } from "./branch.dto";
 import { BranchService } from "./branch.service";
 
 @ApiTags("branch")
@@ -24,7 +24,7 @@ export class BranchController {
 	constructor(private service: BranchService) {}
 
 	@Get("")
-	getBranch(@Query() query: GetBranchDto) {
+	getBranch(@Query() query: GetBranchsDto) {
 		return this.service.getBranch(query);
 	}
 

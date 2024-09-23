@@ -23,7 +23,7 @@ export class AuthGuard implements CanActivate {
 			this.extractTokenFromHeader(request) || this.extractTokenFromCookie(request, "refresh_token");
 
 		if (!accessToken) {
-			throw new UnauthorizedException({ message: "Invalid token" });
+			throw new UnauthorizedException({ message: "Token không hợp lệ" });
 		}
 
 		try {
@@ -32,7 +32,7 @@ export class AuthGuard implements CanActivate {
 			});
 
 			if (!payload) {
-				throw new UnauthorizedException({ message: "Invalid token" });
+				throw new UnauthorizedException({ message: "Token không hợp lệ" });
 			} else {
 				const session = await this.prisma.session.findUnique({
 					where: { session_id: payload.session_id },
@@ -40,10 +40,14 @@ export class AuthGuard implements CanActivate {
 				});
 
 				if (!session) {
-					throw new UnauthorizedException({ message: "Invalid session" });
+					throw new UnauthorizedException({ message: "Session không hợp lệ" });
 				}
 
 				if (new Date(payload.sign_at).getTime() + 60 * 60 * 1000 > Date.now()) {
+					if (session.user.roles.find((f) => f === "banned")) {
+						throw new UnauthorizedException({ message: "Người dùng đã bị cấm" });
+					}
+
 					request.user = session.user;
 					return true;
 				}
@@ -57,17 +61,21 @@ export class AuthGuard implements CanActivate {
 						new Date(refreshPayload.sign_at).getTime() + 7 * 24 * 60 * 60 * 1000 > Date.now() &&
 						refreshPayload.session_id === session.session_id
 					) {
+						if (session.user.roles.find((f) => f === "banned")) {
+							throw new UnauthorizedException({ message: "Người dùng đã bị cấm" });
+						}
+
 						await refreshSession(session.session_id, request.res, this.jwt, this.prisma);
 						request.user = session.user;
 						return true;
 					}
 				}
 
-				throw new UnauthorizedException({ message: "Session expired" });
+				throw new UnauthorizedException({ message: "Session hết hạn" });
 			}
 		} catch (e) {
 			console.log(e);
-			throw new BadRequestException({ message: "Invalid token" });
+			throw new BadRequestException({ message: "Token không hợp lệ" });
 		}
 	}
 
@@ -158,7 +166,7 @@ export class RolesGuard implements CanActivate {
 		const { user } = context.switchToHttp().getRequest();
 		const isValid = requiredRoles.some((role) => user.roles?.includes(role));
 		if (!isValid) {
-			throw new UnauthorizedException({ message: "Forbidden resource" });
+			throw new UnauthorizedException({ message: "Không có quyền truy cập tài nguyên này" });
 		} else {
 			return true;
 		}

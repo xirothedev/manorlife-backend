@@ -6,27 +6,53 @@ import {
 	IsDefined,
 	IsEnum,
 	IsNotEmpty,
+	IsNumberString,
 	IsOptional,
 	IsString,
 	MaxLength,
 	ValidateNested,
 } from "class-validator";
 
-export class GetBranchDto {
+export class GetBranchsDto {
 	@ApiProperty()
+	@IsString()
 	@IsOptional()
-	@IsEnum(Province)
 	province?: Province;
 
 	@ApiProperty()
 	@IsOptional()
-	@IsEnum(Ward)
-	ward?: Ward;
+	@IsString()
+	ward?: string;
 
 	@ApiProperty()
 	@IsOptional()
 	@IsEnum(TradeMark)
 	trademark?: TradeMark;
+
+	@ApiProperty()
+	@IsOptional()
+	@IsNumberString()
+	from?: string;
+
+	@ApiProperty()
+	@IsNumberString()
+	@IsOptional()
+	to?: string;
+
+	@ApiProperty()
+	@IsOptional()
+	@IsNumberString()
+	adults?: string;
+
+	@ApiProperty()
+	@IsNumberString()
+	@IsOptional()
+	children?: string;
+
+	@ApiProperty()
+	@IsNumberString()
+	@IsOptional()
+	babies?: string;
 }
 
 export class CreateBranchDto {
@@ -45,6 +71,11 @@ export class CreateBranchDto {
 	@IsEnum(TradeMark)
 	@IsNotEmpty()
 	trademark: TradeMark;
+
+	@ApiProperty()
+	@IsString()
+	@IsNotEmpty()
+	url: string;
 
 	@ApiProperty()
 	@IsEnum(Province)
