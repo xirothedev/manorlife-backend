@@ -36,7 +36,7 @@ model Room {
   price_per_night Int
   price_per_month Int
   name            String
-  description     String
+  description     String[]
   comforts        Comport[]
   bed_type        RoomBedType
   booking_turn    Int         @default(0)
@@ -55,7 +55,7 @@ model Room {
 model Branch {
   branch_id        String            @id @default(cuid())
   name             String            @unique
-  description      String
+  description      String[]
   url              String            @unique
   trademark        TradeMark
   province         Province?

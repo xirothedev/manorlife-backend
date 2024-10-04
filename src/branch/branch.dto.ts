@@ -62,10 +62,10 @@ export class CreateBranchDto {
 	name: string;
 
 	@ApiProperty()
-	@IsString()
-	@IsNotEmpty()
-	@MaxLength(4000)
-	description: string;
+	@IsString({ each: true })
+	@IsNotEmpty({ each: true })
+	@MaxLength(4000, { each: true })
+	description: string[];
 
 	@ApiProperty()
 	@IsEnum(TradeMark)
@@ -119,10 +119,10 @@ export class EditBranchDto {
 	name: string;
 
 	@ApiProperty()
-	@IsString()
-	@IsNotEmpty()
-	@MaxLength(4000)
-	description: string;
+	@IsString({ each: true })
+	@IsNotEmpty({ each: true })
+	@MaxLength(4000, { each: true })
+	description: string[];
 
 	@ApiProperty()
 	@IsEnum(TradeMark)

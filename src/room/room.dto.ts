@@ -33,10 +33,10 @@ export class CreateRoomDto {
 	name: string;
 
 	@ApiProperty()
-	@IsString()
-	@IsNotEmpty()
-	@MaxLength(4000)
-	description: string;
+	@IsString({ each: true })
+	@IsNotEmpty({ each: true })
+	@MaxLength(4000, { each: true })
+	description: string[];
 
 	@ApiProperty()
 	@IsNumberString()
@@ -121,10 +121,10 @@ export class EditRoomDto {
 	name: string;
 
 	@ApiProperty()
-	@IsString()
-	@IsNotEmpty()
-	@MaxLength(4000)
-	description: string;
+	@IsString({ each: true })
+	@IsNotEmpty({ each: true })
+	@MaxLength(4000, { each: true })
+	description: string[];
 
 	@ApiProperty()
 	@IsEnum(Comport, { each: true })

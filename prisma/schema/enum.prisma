@@ -56,10 +56,14 @@ enum RoomBedType {
 }
 
 enum TradeMark {
-  signature_by_m_village
-  my_village_living
-  m_village_hotel
-  express_by_m_village
+  manor_villas
+  new_life
+  gate_boutique_da_lat
+  gate_boutique_sapa
+  gold_view
+  moon_valley_villas
+  yukkuri_boutique
+  lumina
 }
 
 enum BookingType {
