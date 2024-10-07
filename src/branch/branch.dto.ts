@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Comport, Province, TradeMark, Ward } from "@prisma/client";
+import { TradeMark } from "@prisma/client";
 import { Type } from "class-transformer";
 import {
 	IsArray,
@@ -17,7 +17,7 @@ export class GetBranchsDto {
 	@ApiProperty()
 	@IsString()
 	@IsOptional()
-	province?: Province;
+	province?: string;
 
 	@ApiProperty()
 	@IsOptional()
@@ -62,6 +62,8 @@ export class CreateBranchDto {
 	name: string;
 
 	@ApiProperty()
+	@IsArray()
+	@IsNotEmpty()
 	@IsString({ each: true })
 	@IsNotEmpty({ each: true })
 	@MaxLength(4000, { each: true })
@@ -78,20 +80,20 @@ export class CreateBranchDto {
 	url: string;
 
 	@ApiProperty()
-	@IsEnum(Province)
+	@IsString()
 	@IsNotEmpty()
-	province?: Province;
+	province: string;
 
 	@ApiProperty()
-	@IsEnum(Ward)
+	@IsString()
 	@IsNotEmpty()
-	ward?: Ward;
+	ward: string;
 
 	@ApiProperty()
+	@IsNotEmpty()
 	@IsArray()
-	@IsNotEmpty()
-	@IsEnum(Comport, { each: true })
-	best_comforts: Comport[];
+	@IsString({ each: true })
+	best_comforts: string[];
 
 	@ApiProperty()
 	@IsString()
@@ -119,6 +121,8 @@ export class EditBranchDto {
 	name: string;
 
 	@ApiProperty()
+	@IsArray()
+	@IsNotEmpty()
 	@IsString({ each: true })
 	@IsNotEmpty({ each: true })
 	@MaxLength(4000, { each: true })
@@ -130,20 +134,20 @@ export class EditBranchDto {
 	trademark: TradeMark;
 
 	@ApiProperty()
-	@IsEnum(Province)
+	@IsString()
 	@IsNotEmpty()
-	province?: Province;
+	province: string;
 
 	@ApiProperty()
-	@IsEnum(Ward)
+	@IsString()
 	@IsNotEmpty()
-	ward?: Ward;
+	ward: string;
 
 	@ApiProperty()
 	@IsArray()
 	@IsNotEmpty()
-	@IsEnum(Comport, { each: true })
-	best_comforts: Comport[];
+	@IsString({ each: true })
+	best_comforts: string[];
 
 	@ApiProperty()
 	@IsString()

@@ -16,34 +16,6 @@ enum AuthType {
   recovery
 }
 
-enum Comport {
-  free_laundry_room
-  HCM_center
-  HN_center
-  cleaning_services
-  suitable_for_1_2_people
-  high_speed_wifi
-  area_from_20m2_32m2
-  city_view
-  river_view
-  balcony
-  desk_working
-  utility_kitchen
-  microwave_oven
-  private_bathroom
-  minibar_refrigerator
-  security_247
-  gym
-  comfortable_room
-  breakfast_buffet
-  pool
-  civilized_community
-  free_laundry
-  television
-  beauty_scene
-  airport_support
-}
-
 enum RoomStatus {
   available
   almost_full
@@ -86,23 +58,6 @@ enum BookingRange {
 enum Currency {
   VND
   USD
-}
-
-enum Province {
-  ho_chi_minh
-  ha_noi
-  da_nang
-}
-
-enum Ward {
-  quan_3
-  quan_2
-  quan_1
-  tan_binh
-  binh_thach
-  phu_nhuan
-  pho_co
-  gan_cau_rong
 }
 
 enum Country {

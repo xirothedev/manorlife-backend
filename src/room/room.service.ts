@@ -12,7 +12,16 @@ export class RoomService {
 		private prisma: PrismaService,
 		private media: MediaSerivce,
 	) {}
-	
+
+	async getRoom(param: string) {
+		const data = await this.prisma.room.findMany({ where: { branch: { url: param } } });
+
+		return {
+			message: `Đã lấy ${data.length} phòng thành công`,
+			data,
+		};
+	}
+
 	async createRoom(body: CreateRoomDto, images: Array<Express.Multer.File>) {
 		const branch = await this.prisma.branch.findFirst({
 			where: { OR: [{ branch_id: body.branch }, { name: body.branch }] },
@@ -36,7 +45,7 @@ export class RoomService {
 				price_per_month: +body.price_per_month,
 				price_per_night: +body.price_per_night,
 				stock: +body.stock,
-				comforts: { set: body.comforts },
+				comforts: body.comforts,
 				branch_id: branch.branch_id,
 				max_adults: +body.max_adults,
 				max_children: +body.max_children,

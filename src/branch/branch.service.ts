@@ -5,7 +5,6 @@ import { BadRequestException } from "src/exception";
 import { MediaSerivce } from "src/media.service";
 import { PrismaService } from "src/prisma.service";
 import { CreateBranchDto, EditBranchDto, GetBranchsDto } from "./branch.dto";
-import { Ward } from "@prisma/client";
 
 @Injectable()
 export class BranchService {
@@ -15,10 +14,10 @@ export class BranchService {
 	) {}
 
 	async getBranch(query: GetBranchsDto) {
+		const wards = query.ward?.split(",");
 		const branchs = await this.prisma.branch.findMany({
 			where: {
 				province: query.province || undefined,
-				ward: { in: (query.ward?.split(",") as Ward[]) || undefined },
 				trademark: query.trademark || undefined,
 				rooms: {
 					some: {
@@ -34,9 +33,11 @@ export class BranchService {
 			include: { rooms: true },
 		});
 
+		const filter = wards ? branchs.filter((f) => wards.includes(f.ward)) : branchs;
+
 		return {
 			message: `Đã lấy ${branchs.length} chi nhánh thành công`,
-			data: branchs,
+			data: filter,
 		};
 	}
 

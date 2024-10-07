@@ -2,6 +2,7 @@ import {
 	Body,
 	Controller,
 	Delete,
+	Get,
 	Param,
 	Post,
 	Put,
@@ -21,6 +22,11 @@ import { RoomService } from "./room.service";
 @Controller("room")
 export class RoomController {
 	constructor(private service: RoomService) {}
+
+	@Get("")
+	getRoom(@Param() param: string) {
+		return this.service.getRoom(param)
+	}
 
 	@Post("")
 	@ApiBearerAuth()

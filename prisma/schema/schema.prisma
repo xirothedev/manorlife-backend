@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions", "prismaSchemaFolder", "omitApi"]
+  previewFeatures = ["postgresqlExtensions", "prismaSchemaFolder", "omitApi", "fullTextSearch"]
 }
 
 datasource db {
@@ -37,7 +37,7 @@ model Room {
   price_per_month Int
   name            String
   description     String[]
-  comforts        Comport[]
+  comforts        String[]
   bed_type        RoomBedType
   booking_turn    Int         @default(0)
   status          RoomStatus  @default(available)
@@ -58,9 +58,9 @@ model Branch {
   description      String[]
   url              String            @unique
   trademark        TradeMark
-  province         Province?
-  ward             Ward?
-  best_comforts    Comport[]
+  province         String
+  ward             String
+  best_comforts    String[]
   location         String
   images           String[]
   rooms            Room[]

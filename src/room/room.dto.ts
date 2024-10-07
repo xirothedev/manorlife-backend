@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Comport, RoomBedType, RoomStatus, TradeMark } from "@prisma/client";
+import { RoomBedType, RoomStatus, TradeMark } from "@prisma/client";
 import {
+	IsArray,
 	IsEnum,
 	IsNotEmpty,
 	IsNumber,
@@ -33,6 +34,8 @@ export class CreateRoomDto {
 	name: string;
 
 	@ApiProperty()
+	@IsArray()
+	@IsNotEmpty()
 	@IsString({ each: true })
 	@IsNotEmpty({ each: true })
 	@MaxLength(4000, { each: true })
@@ -49,9 +52,10 @@ export class CreateRoomDto {
 	bed_type: RoomBedType;
 
 	@ApiProperty()
-	@IsEnum(Comport, { each: true })
 	@IsNotEmpty()
-	comforts: Comport[];
+	@IsArray()
+	@IsString({ each: true })
+	comforts: string[];
 
 	@ApiProperty()
 	@IsEnum(RoomStatus)
@@ -121,15 +125,18 @@ export class EditRoomDto {
 	name: string;
 
 	@ApiProperty()
+	@IsArray()
+	@IsNotEmpty()
 	@IsString({ each: true })
 	@IsNotEmpty({ each: true })
 	@MaxLength(4000, { each: true })
 	description: string[];
 
 	@ApiProperty()
-	@IsEnum(Comport, { each: true })
 	@IsNotEmpty()
-	comforts: Comport;
+	@IsArray()
+	@IsString({ each: true })
+	best_comforts: string[];
 
 	@ApiProperty()
 	@IsEnum(RoomStatus)
