@@ -42,12 +42,18 @@ export class BranchService {
 	}
 
 	async createBranch(body: CreateBranchDto, images: Array<Express.Multer.File>) {
-		const branch = await this.prisma.branch.findUnique({
-			where: { name: body.name },
+		const branch = await this.prisma.branch.findFirst({
+			where: { OR: [{ name: body.name }, { url: body.url }] },
 		});
 
 		if (branch) {
-			throw new BadRequestException({ message: "Chi nhánh đã tồn tại" });
+			if (branch.url === body.url) {
+				throw new BadRequestException({ message: "Đường dẫn đã tồn tại" });
+			}
+
+			if (branch.name === body.name) {
+				throw new BadRequestException({ message: "Chi nhánh đã tồn tại" });
+			}
 		}
 
 		if (!images || images.length === 0) {

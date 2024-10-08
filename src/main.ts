@@ -10,6 +10,8 @@ async function bootstrap() {
 	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
 		cors: { credentials: true, origin: true },
 	});
+
+	// app.use(multer)
 	app.use(cookieParser(process.env.COOKIE_SECRET_KEY));
 	app.useGlobalPipes(new ValidationPipe());
 	app.useStaticAssets(join(__dirname, "..", "public"));
@@ -34,7 +36,7 @@ async function bootstrap() {
 				.addTag("payment")
 				.addTag("booking")
 				.addTag("room")
-				.addTag('branch')
+				.addTag("branch")
 				.addBearerAuth()
 				.build(),
 		),

@@ -6,10 +6,9 @@ import {
 	IsNotEmpty,
 	IsNumber,
 	IsNumberString,
-	IsOptional,
 	IsPositive,
 	IsString,
-	MaxLength,
+	MaxLength
 } from "class-validator";
 
 export class CreateRoomDto {
@@ -84,13 +83,13 @@ export class CreateRoomDto {
 
 	@ApiProperty()
 	@IsNumberString()
-	@IsOptional()
-	available_from?: string;
+	@IsNotEmpty()
+	available_from: string;
 
 	@ApiProperty()
 	@IsNumberString()
-	@IsOptional()
-	available_to?: string;
+	@IsNotEmpty()
+	available_to: string;
 }
 
 export class EditRoomDto {
