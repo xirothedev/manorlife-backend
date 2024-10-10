@@ -14,11 +14,11 @@ export class RoomService {
 	) {}
 
 	async getRoom(param: string) {
-		const data = await this.prisma.room.findMany({ where: { branch: { url: param } } });
+		const data = await this.prisma.branch.findUnique({ where: { url: param }, include: { rooms: true } });
 
 		return {
-			message: `Đã lấy ${data.length} phòng thành công`,
-			data,
+			message: `Đã lấy ${data.rooms.length} phòng thành công`,
+			data: data.rooms,
 		};
 	}
 
