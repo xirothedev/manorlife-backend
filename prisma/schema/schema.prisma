@@ -40,7 +40,6 @@ model Room {
   comforts        String[]
   bed_type        RoomBedType
   booking_turn    Int         @default(0)
-  status          RoomStatus  @default(available)
   stock           Int
   acreage         Int
   available_from  DateTime?
@@ -55,9 +54,9 @@ model Room {
 model Branch {
   branch_id        String            @id @default(cuid())
   name             String            @unique
+  trademark        String            @unique
   description      String[]
   url              String            @unique
-  trademark        TradeMark
   province         String
   ward             String
   best_comforts    String[]

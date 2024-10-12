@@ -13,7 +13,7 @@ export class BranchService {
 		private media: MediaSerivce,
 	) {}
 
-	async getBranch(query: GetBranchsDto) {
+	async getBranchs(query: GetBranchsDto) {
 		const wards = query.ward?.split(",");
 		const branchs = await this.prisma.branch.findMany({
 			where: {
@@ -26,7 +26,6 @@ export class BranchService {
 						max_adults: { gte: +query.adults || undefined },
 						max_children: { gte: +query.children || undefined },
 						max_babies: { gte: +query.babies || undefined },
-						OR: [{ status: "available" }, { status: "almost_full" }],
 					},
 				},
 			},
@@ -38,6 +37,15 @@ export class BranchService {
 		return {
 			message: `Đã lấy ${branchs.length} chi nhánh thành công`,
 			data: filter,
+		};
+	}
+
+	async getAllBranchs() {
+		const branchs = await this.prisma.branch.findMany();
+
+		return {
+			message: `Đã lấy ${branchs.length} chi nhánh thành công`,
+			data: branchs,
 		};
 	}
 

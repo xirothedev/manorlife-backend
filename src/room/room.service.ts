@@ -14,17 +14,24 @@ export class RoomService {
 	) {}
 
 	async getRoom(param: string) {
-		const data = await this.prisma.branch.findUnique({ where: { url: param }, include: { rooms: true } });
+		const data = await this.prisma.branch.findUnique({
+			where: { url: param },
+			include: { rooms: true, surrounding_area: true },
+		});
+
+		if (!data) {
+			new BadRequestException({ message: "Không tìm thấy phòng" });
+		}
 
 		return {
-			message: `Đã lấy ${data.rooms.length} phòng thành công`,
-			data: data.rooms,
+			message: `Đã lấy ${data.rooms.length || 0} phòng thành công`,
+			data: data,
 		};
 	}
 
 	async createRoom(body: CreateRoomDto, images: Array<Express.Multer.File>) {
 		const branch = await this.prisma.branch.findFirst({
-			where: { OR: [{ branch_id: body.branch }, { name: body.branch }] },
+			where: { OR: [{ url: body.branch }, { name: body.branch }] },
 		});
 
 		if (!branch) {
@@ -52,7 +59,6 @@ export class RoomService {
 				max_babies: +body.max_babies,
 				images: files,
 				bed_type: body.bed_type,
-				status: body.status,
 				available_from: new Date(+body.available_from),
 				available_to: new Date(+body.available_to),
 			},

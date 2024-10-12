@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { RoomBedType, RoomStatus, TradeMark } from "@prisma/client";
+import { RoomBedType } from "@prisma/client";
 import {
 	IsArray,
 	IsEnum,
@@ -8,7 +8,7 @@ import {
 	IsNumberString,
 	IsPositive,
 	IsString,
-	MaxLength
+	MaxLength,
 } from "class-validator";
 
 export class CreateRoomDto {
@@ -55,11 +55,6 @@ export class CreateRoomDto {
 	@IsArray()
 	@IsString({ each: true })
 	comforts: string[];
-
-	@ApiProperty()
-	@IsEnum(RoomStatus)
-	@IsNotEmpty()
-	status: RoomStatus;
 
 	@ApiProperty()
 	@IsNotEmpty()
@@ -114,9 +109,9 @@ export class EditRoomDto {
 	price_per_month: number;
 
 	@ApiProperty()
-	@IsEnum(TradeMark)
+	@IsString()
 	@IsNotEmpty()
-	trademark: TradeMark;
+	trademark: string;
 
 	@ApiProperty()
 	@IsString()
@@ -136,11 +131,6 @@ export class EditRoomDto {
 	@IsArray()
 	@IsString({ each: true })
 	best_comforts: string[];
-
-	@ApiProperty()
-	@IsEnum(RoomStatus)
-	@IsNotEmpty()
-	status: RoomStatus;
 
 	@ApiProperty()
 	@IsNotEmpty()

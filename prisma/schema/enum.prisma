@@ -16,26 +16,9 @@ enum AuthType {
   recovery
 }
 
-enum RoomStatus {
-  available
-  almost_full
-  full
-}
-
 enum RoomBedType {
   king
   single
-}
-
-enum TradeMark {
-  manor_villas
-  new_life
-  gate_boutique_da_lat
-  gate_boutique_sapa
-  gold_view
-  moon_valley_villas
-  yukkuri_boutique
-  lumina
 }
 
 enum BookingType {

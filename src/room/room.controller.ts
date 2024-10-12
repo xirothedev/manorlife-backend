@@ -22,9 +22,9 @@ import { RoomService } from "./room.service";
 export class RoomController {
 	constructor(private service: RoomService) {}
 
-	@Get("")
-	getRoom(@Param() param: string) {
-		return this.service.getRoom(param);
+	@Get("/:param")
+	getRoom(@Param() params: { param: string }) {
+		return this.service.getRoom(params.param);
 	}
 
 	@Post("")

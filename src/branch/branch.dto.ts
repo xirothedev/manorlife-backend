@@ -1,16 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { TradeMark } from "@prisma/client";
 import { Type } from "class-transformer";
 import {
 	IsArray,
 	IsDefined,
-	IsEnum,
 	IsNotEmpty,
 	IsNumberString,
 	IsOptional,
 	IsString,
 	MaxLength,
-	ValidateNested,
+	ValidateNested
 } from "class-validator";
 
 export class GetBranchsDto {
@@ -26,8 +24,8 @@ export class GetBranchsDto {
 
 	@ApiProperty()
 	@IsOptional()
-	@IsEnum(TradeMark)
-	trademark?: TradeMark;
+	@IsString()
+	trademark?: string;
 
 	@ApiProperty()
 	@IsOptional()
@@ -70,9 +68,9 @@ export class CreateBranchDto {
 	description: string[];
 
 	@ApiProperty()
-	@IsEnum(TradeMark)
+	@IsString()
 	@IsNotEmpty()
-	trademark: TradeMark;
+	trademark: string;
 
 	@ApiProperty()
 	@IsString()
@@ -129,9 +127,9 @@ export class EditBranchDto {
 	description: string[];
 
 	@ApiProperty()
-	@IsEnum(TradeMark)
+	@IsString()
 	@IsNotEmpty()
-	trademark: TradeMark;
+	trademark: string;
 
 	@ApiProperty()
 	@IsString()
