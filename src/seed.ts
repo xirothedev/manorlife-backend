@@ -19,7 +19,7 @@ async function main() {
 		{
 			trademark: "manor_villas",
 			name: "The Manor Villas Đà Lạt",
-			url: "/the-manor-villas-da-lat",
+			url: "the-manor-villas-da-lat",
 			images: [
 				"/seed/Yukkuri/_DSC4432.JPG",
 				"/seed/Yukkuri/_DSC4437.JPG",
@@ -40,7 +40,7 @@ async function main() {
 		{
 			trademark: "new_life",
 			name: "New Life Hotel Đà Lạt",
-			url: "/new-life-hotel-da-lat",
+			url: "new-life-hotel-da-lat",
 			images: [
 				"/seed/Yukkuri/_DSC4432.JPG",
 				"/seed/Yukkuri/_DSC4437.JPG",
@@ -63,7 +63,7 @@ async function main() {
 		{
 			trademark: "gate_boutique_da_lat",
 			name: "The Gate Boutique Hotel Đà lạt",
-			url: "/the-gate-boutique-hotel-da-lat",
+			url: "the-gate-boutique-hotel-da-lat",
 			images: [
 				"/seed/Yukkuri/_DSC4432.JPG",
 				"/seed/Yukkuri/_DSC4437.JPG",
@@ -89,7 +89,7 @@ async function main() {
 		{
 			trademark: "gate_boutique_sapa",
 			name: "The Gate Boutique Hotel Sapa",
-			url: "/the-gate-boutique-hotel-sapa",
+			url: "the-gate-boutique-hotel-sapa",
 			images: [
 				"/seed/Yukkuri/_DSC4432.JPG",
 				"/seed/Yukkuri/_DSC4437.JPG",
@@ -109,7 +109,7 @@ async function main() {
 		{
 			trademark: "gold_view",
 			name: "Gold View Hotel Đà Lạt",
-			url: "/gold-view-hotel-da-lat",
+			url: "gold-view-hotel-da-lat",
 			images: [
 				"/seed/Yukkuri/_DSC4432.JPG",
 				"/seed/Yukkuri/_DSC4437.JPG",
@@ -130,7 +130,7 @@ async function main() {
 		{
 			trademark: "moon_valley_villas",
 			name: "Moon Valley Villas Đà Lạt",
-			url: "/moon-valley-villas-da-lat",
+			url: "moon-valley-villas-da-lat",
 			images: [
 				"/seed/Yukkuri/_DSC4432.JPG",
 				"/seed/Yukkuri/_DSC4437.JPG",
@@ -151,7 +151,7 @@ async function main() {
 		{
 			trademark: "yukkuri_boutique",
 			name: "Yukkuri Boutique Hotel Đà lạt",
-			url: "/yukkuri-boutique-hotel-da-lat",
+			url: "yukkuri-boutique-hotel-da-lat",
 			images: [
 				"/seed/Yukkuri/_DSC4432.JPG",
 				"/seed/Yukkuri/_DSC4437.JPG",
@@ -173,7 +173,7 @@ async function main() {
 		},
 		{
 			trademark: "lumina",
-			url: "/lumina-hotel-dalat-central",
+			url: "lumina-hotel-dalat-central",
 			images: [
 				"/seed/Yukkuri/_DSC4432.JPG",
 				"/seed/Yukkuri/_DSC4437.JPG",
