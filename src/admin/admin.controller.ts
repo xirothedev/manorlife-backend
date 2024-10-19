@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Put, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Param, Patch, Put, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Roles } from "src/app.decorator";
 import { AuthGuard, RolesGuard } from "src/app.guard";
@@ -18,9 +18,14 @@ export class AdminController {
 		return this.service.editUser(body);
 	}
 
+	@Delete("user")
+	deleteUser(@Param() params: {user}) {
+		return this.service.deleteUser(params.user)
+	}
+
 	@Patch("ban")
-	banUser(@Param() param: string) {
-		return this.service.banUser(param);
+	banUser(@Param() params: {user}) {
+		return this.service.banUser(params.user);
 	}
 
 	@Patch("unban")

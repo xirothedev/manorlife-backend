@@ -77,6 +77,94 @@ export class CreateBookingDto {
 
 	@ApiProperty()
 	@IsString()
+	@IsOptional()
+	fullname_customer: string;
+
+	@ApiProperty()
+	@IsEmail()
+	@IsOptional()
+	email_customer: string;
+
+	@ApiProperty()
+	@IsPhoneNumber()
+	@IsOptional()
+	phone_customer: string;
+
+	@ApiProperty()
+	@IsEnum(BookingType)
+	@IsNotEmpty()
+	type: BookingType;
+
+	@ApiProperty()
+	@IsEnum(BookingRange)
+	@IsNotEmpty()
+	range: BookingRange;
+
+	@ApiProperty()
+	@IsString()
+	@IsNotEmpty()
+	room_id: string;
+
+	@ApiProperty()
+	@IsString()
+	@IsOptional()
+	note: string;
+}
+
+export class EditBookingDto {
+	@ApiProperty()
+	@IsString()
+	@IsNotEmpty()
+	booking_id: string;
+
+	@ApiProperty()
+	@IsNumber()
+	@IsNotEmpty()
+	@Min(0)
+	@Max(3)
+	adults: number;
+
+	@ApiProperty()
+	@IsNumber()
+	@IsNotEmpty()
+	@Min(0)
+	@Max(3)
+	children: number;
+
+	@ApiProperty()
+	@IsNumber()
+	@IsNotEmpty()
+	@Min(0)
+	@Max(3)
+	babies: number;
+
+	@ApiProperty()
+	@IsDateString()
+	@IsNotEmpty()
+	checkin: string | Date;
+
+	@ApiProperty()
+	@IsDateString()
+	@IsNotEmpty()
+	checkout: string | Date;
+
+	@ApiProperty()
+	@IsString()
+	@IsNotEmpty()
+	fullname_order: string;
+
+	@ApiProperty()
+	@IsEmail()
+	@IsNotEmpty()
+	email_order: string;
+
+	@ApiProperty()
+	@IsPhoneNumber()
+	@IsNotEmpty()
+	phone_order: string;
+
+	@ApiProperty()
+	@IsString()
 	@IsNullable()
 	fullname_customer: string;
 

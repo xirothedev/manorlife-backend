@@ -4,7 +4,7 @@ import { Request } from "express";
 import { BankService } from "src/bank.service";
 import { BadRequestException } from "src/exception";
 import { PrismaService } from "src/prisma.service";
-import { BookingsDto, CreateBookingDto } from "./booking.dto";
+import { CreateBookingDto, EditBookingDto } from "./booking.dto";
 
 @Injectable()
 export class BookingService {
@@ -13,26 +13,26 @@ export class BookingService {
 		private bankService: BankService,
 	) {}
 
-	async getBookings(query: BookingsDto) {
-		if (query?.count || query?.page) {
-			const bookings = await this.prisma.booking.findMany({
-				take: +query.count || 10,
-				skip: ((+query.page || 1) - 1) * (+query.count || 10),
-				include: { user: { omit: { password: true } }, room: true },
-			});
+	async getBookings() {
+		const bookings = await this.prisma.booking.findMany();
 
-			return {
-				message: `Lấy thông tin của ${bookings.length} đơn đặt phòng thành công`,
-				data: bookings,
-			};
-		} else {
-			const bookings = await this.prisma.booking.findMany();
+		return {
+			message: `Lấy thông tin của ${bookings.length} đơn đặt phòng thành công`,
+			data: bookings,
+		};
+	}
 
-			return {
-				message: `Lấy thông tin của ${bookings.length} đơn đặt phòng thành công`,
-				data: bookings,
-			};
+	async getBooking(param: string) {
+		const booking = await this.prisma.booking.findUnique({ where: { booking_id: param } });
+
+		if (!booking) {
+			throw new BadRequestException({ message: "Đặt phòng không tồn tại" });
 		}
+
+		return {
+			message: "Đã lấy đặt phòng thành công",
+			data: booking,
+		};
 	}
 
 	async createBooking(body: CreateBookingDto, req: Request) {
@@ -42,7 +42,7 @@ export class BookingService {
 		body.checkout = new Date(body.checkout);
 
 		if (!room) {
-			throw new BadRequestException({ message: "Phòng không tồn tại" });
+			throw new BadRequestException({ message: "Đặt phòng tồn tại" });
 		}
 
 		if (body.type === "help_set" && (!body.email_customer || !body.phone_customer || !body.fullname_customer)) {
@@ -91,6 +91,36 @@ export class BookingService {
 		return {
 			message: "Tạo đơn đặt phòng thành công",
 			data: { ...data, qrUrl: bank.data.checkoutUrl, qrCode: bank.data.qrCode },
+		};
+	}
+
+	async editBooking(body: EditBookingDto) {
+		const booking = await this.prisma.booking.findUnique({ where: { booking_id: body.booking_id } });
+
+		if (!booking) {
+			throw new BadRequestException({ message: "Không tìm thấy booking" });
+		}
+
+		const data = await this.prisma.booking.update({ where: { booking_id: body.booking_id }, data: body });
+
+		return {
+			message: "Chỉnh sửa đặt phòng thành công",
+			data,
+		};
+	}
+
+	async deleteBooking(param: string) {
+		const booking = await this.prisma.booking.findUnique({ where: { booking_id: param } });
+
+		if (!booking) {
+			throw new BadRequestException({ message: "Không tìm thấy booking" });
+		}
+
+		const data = await this.prisma.booking.delete({ where: { booking_id: param } });
+
+		return {
+			message: "Xóa đặt phòng thành công",
+			data,
 		};
 	}
 }

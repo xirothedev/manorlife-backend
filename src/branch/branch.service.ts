@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { unlink } from "fs/promises";
-import path from "path";
+import * as path from "path";
 import { BadRequestException } from "src/exception";
 import { MediaSerivce } from "src/media.service";
 import { PrismaService } from "src/prisma.service";
@@ -40,6 +40,22 @@ export class BranchService {
 		};
 	}
 
+	async getBranch(param: string) {
+		const data = await this.prisma.branch.findUnique({
+			where: { url: param },
+			include: { rooms: true, surrounding_area: true },
+		});
+
+		if (!data) {
+			new BadRequestException({ message: "Không tìm thấy phòng" });
+		}
+
+		return {
+			message: `Đã lấy ${data?.rooms?.length || 0} phòng thành công`,
+			data: data,
+		};
+	}
+
 	async getAllBranchs() {
 		const branchs = await this.prisma.branch.findMany();
 
@@ -51,7 +67,7 @@ export class BranchService {
 
 	async createBranch(body: CreateBranchDto, images: Array<Express.Multer.File>) {
 		const branch = await this.prisma.branch.findFirst({
-			where: { OR: [{ name: body.name }, { url: body.url }] },
+			where: { OR: [{ name: body.name }, { url: body.url }, { trademark: body.trademark }] },
 		});
 
 		if (branch) {
@@ -61,6 +77,10 @@ export class BranchService {
 
 			if (branch.name === body.name) {
 				throw new BadRequestException({ message: "Chi nhánh đã tồn tại" });
+			}
+
+			if (branch.trademark === body.trademark) {
+				throw new BadRequestException({ message: "Thương hiệu đã tồn tại" });
 			}
 		}
 
@@ -98,13 +118,12 @@ export class BranchService {
 			throw new BadRequestException({ message: "Chi nhánh không tồn tại" });
 		}
 
-		if (!images || images.length === 0) {
-			throw new BadRequestException({ message: "Vui lòng cung cấp hình ảnh" });
+		let files = branch.images;
+
+		if (images && images.length !== 0) {
+			await Promise.all(branch.images.map(async (image) => await unlink(path.join("public", image))));
+			files = await Promise.all(images.map(this.media.transform));
 		}
-
-		await Promise.all(branch.images.map(async (image) => await unlink(path.join("public", image))));
-
-		const files = await Promise.all(images.map(this.media.transform));
 
 		const data = await this.prisma.branch.update({
 			where: { branch_id: body.branch_id },

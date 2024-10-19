@@ -22,6 +22,11 @@ import { RoomService } from "./room.service";
 export class RoomController {
 	constructor(private service: RoomService) {}
 
+	@Get("/all")
+	getAllRooms() {
+		return this.service.getAllRooms();
+	}
+
 	@Get("/:param")
 	getRoom(@Param() params: { param: string }) {
 		return this.service.getRoom(params.param);
@@ -45,11 +50,11 @@ export class RoomController {
 		return this.service.editRoom(body, images);
 	}
 
-	@Delete("")
+	@Delete("/:param")
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard, RolesGuard)
 	@Roles("administrator")
-	deleteRoom(@Param() param: string) {
-		return this.service.deleteRoom(param);
+	deleteRoom(@Param() params: { param: string }) {
+		return this.service.deleteRoom(params.param);
 	}
 }

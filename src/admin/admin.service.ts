@@ -52,6 +52,21 @@ export class AdminService {
 		};
 	}
 
+	async deleteUser(param: string) {
+		const user = await this.prisma.user.findUnique({ where: { user_id: param } });
+
+		if (!user) {
+			throw new BadRequestException({ message: "Người dùng không tồn tại" });
+		}
+
+		const data = await this.prisma.user.delete({ where: { user_id: param } })
+
+		return {
+			message: "Đã xóa người dùng thành công",
+			data,
+		};
+	}
+
 	async banUser(param: string) {
 		const user = await this.prisma.user.findUnique({ where: { user_id: param } });
 

@@ -1,10 +1,10 @@
-import { Body, Controller, Get, Put, Query, Req, UseGuards } from "@nestjs/common";
-import { UsersService } from "./users.service";
+import { Body, Controller, Get, Param, Put, Req, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
-import { AuthGuard, RolesGuard } from "src/app.guard";
-import { EditUserInfoDto, EditUserPasswordDto, UsersDto } from "./users.dto";
 import { Request } from "express";
 import { Roles } from "src/app.decorator";
+import { AuthGuard, RolesGuard } from "src/app.guard";
+import { EditUserInfoDto, EditUserPasswordDto } from "./users.dto";
+import { UsersService } from "./users.service";
 
 @ApiTags("users")
 @Controller("users")
@@ -15,15 +15,23 @@ export class UsersController {
 	@Roles("administrator")
 	@ApiBearerAuth()
 	@Get("")
-	users(@Query() query: UsersDto) {
-		return this.service.getUsers(query);
+	users() {
+		return this.service.getUsers();
 	}
 
 	@Get("@me")
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard)
 	me(@Req() req: Request) {
-		return this.service.getOwn(req)
+		return this.service.getOwn(req);
+	}
+
+	@UseGuards(AuthGuard, RolesGuard)
+	@Roles("administrator")
+	@ApiBearerAuth()
+	@Get("/:param")
+	user(@Param() params: { param: string }) {
+		return this.service.getUser(params.param);
 	}
 
 	@Put("info")

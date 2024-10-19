@@ -33,6 +33,11 @@ export class BranchController {
 		return this.service.getAllBranchs();
 	}
 
+	@Get("/:param")
+	getBranch(@Param() params: { param: string }) {
+		return this.service.getBranch(params.param);
+	}
+
 	@Post("")
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard, RolesGuard)
@@ -47,15 +52,15 @@ export class BranchController {
 	@UseGuards(AuthGuard, RolesGuard)
 	@Roles("administrator")
 	@UseInterceptors(FilesInterceptor("images"))
-	editBranch(@Body() body: EditBranchDto, @UploadedFiles() images: Array<Express.Multer.File>) {
+	editBranch(@Body() body: EditBranchDto, @UploadedFiles() images?: Array<Express.Multer.File>) {
 		return this.service.editRoom(body, images);
 	}
 
-	@Delete("")
+	@Delete("/:param")
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard, RolesGuard)
 	@Roles("administrator")
-	deleteRoom(@Param() param: string) {
-		return this.service.deleteBranch(param);
+	deleteRoom(@Param() params: { param: string }) {
+		return this.service.deleteBranch(params.param);
 	}
 }

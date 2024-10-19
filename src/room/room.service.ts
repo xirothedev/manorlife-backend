@@ -13,25 +13,31 @@ export class RoomService {
 		private media: MediaSerivce,
 	) {}
 
+	async getAllRooms() {
+		const data = await this.prisma.room.findMany();
+
+		return {
+			message: `Đã lấy ${data.length} phòng thành công`,
+			data,
+		};
+	}
+
 	async getRoom(param: string) {
-		const data = await this.prisma.branch.findUnique({
-			where: { url: param },
-			include: { rooms: true, surrounding_area: true },
-		});
+		const data = await this.prisma.room.findUnique({ where: { room_id: param } });
 
 		if (!data) {
 			new BadRequestException({ message: "Không tìm thấy phòng" });
 		}
 
 		return {
-			message: `Đã lấy ${data.rooms.length || 0} phòng thành công`,
-			data: data,
+			message: `Đã lấy phòng thành công`,
+			data,
 		};
 	}
 
 	async createRoom(body: CreateRoomDto, images: Array<Express.Multer.File>) {
 		const branch = await this.prisma.branch.findFirst({
-			where: { OR: [{ url: body.branch }, { name: body.branch }] },
+			where: { branch_id: body.branch_id },
 		});
 
 		if (!branch) {
@@ -85,13 +91,12 @@ export class RoomService {
 			throw new BadRequestException({ message: "Chi nhánh không tồn tại" });
 		}
 
-		if (!images || images.length === 0) {
-			throw new BadRequestException({ message: "Vui lòng cung cấp hình ảnh" });
+		let files;
+
+		if (images && images.length !== 0) {
+			await Promise.all(room.images.map(async (image) => await unlink(path.join("public", image))));
+			files = await Promise.all(images.map(this.media.transform));
 		}
-
-		await Promise.all(room.images.map(async (image) => await unlink(path.join("public", image))));
-
-		const files = await Promise.all(images.map(this.media.transform));
 
 		const data = await this.prisma.room.update({
 			where: { room_id: body.room_id },

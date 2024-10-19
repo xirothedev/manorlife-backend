@@ -100,7 +100,6 @@ export class CreateBranchDto {
 
 	@ApiProperty()
 	@IsDefined()
-	@IsNotEmpty()
 	@IsArray()
 	@ValidateNested({ each: true })
 	@Type(() => SurroundingAreaDto)
@@ -154,7 +153,6 @@ export class EditBranchDto {
 
 	@ApiProperty()
 	@IsDefined()
-	@IsNotEmpty()
 	@IsArray()
 	@ValidateNested({ each: true })
 	@Type(() => SurroundingAreaDto)

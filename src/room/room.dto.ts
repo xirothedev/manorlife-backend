@@ -15,7 +15,7 @@ export class CreateRoomDto {
 	@ApiProperty()
 	@IsString()
 	@IsNotEmpty()
-	branch: string;
+	branch_id: string;
 
 	@ApiProperty()
 	@IsNumberString()

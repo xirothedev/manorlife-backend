@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "src/prisma.service";
-import { EditUserInfoDto, EditUserPasswordDto, UsersDto } from "./users.dto";
-import { BadRequestException, UnauthorizedException } from "src/exception";
-import { Request } from "express";
 import { compare, hash } from "bcrypt";
+import { Request } from "express";
+import { BadRequestException, UnauthorizedException } from "src/exception";
+import { PrismaService } from "src/prisma.service";
+import { EditUserInfoDto, EditUserPasswordDto } from "./users.dto";
 
 @Injectable()
 export class UsersService {
@@ -24,26 +24,26 @@ export class UsersService {
 		};
 	}
 
-	async getUsers(query: UsersDto) {
-		if (query?.count || query?.page) {
-			const users = await this.prisma.user.findMany({
-				take: +query.count || 10,
-				skip: ((+query.page || 1) - 1) * (+query.count || 10),
-				omit: { password: true },
-			});
+	async getUsers() {
+		const users = await this.prisma.user.findMany();
 
-			return {
-				message: `Lấy thông tin của ${users.length} người dùng thành công`,
-				data: users,
-			};
-		} else {
-			const users = await this.prisma.user.findMany();
+		return {
+			message: `Lấy thông tin của ${users.length} người dùng thành công`,
+			data: users,
+		};
+	}
 
-			return {
-				message: `Lấy thông tin của ${users.length} người dùng thành công`,
-				data: users,
-			};
+	async getUser(param: string) {
+		const user = await this.prisma.user.findUnique({ where: { user_id: param } });
+
+		if (!user) {
+			throw new BadRequestException({ message: "Người dùng không tồn tại" });
 		}
+
+		return {
+			message: "Lấy người dùng thành công",
+			data: user,
+		};
 	}
 
 	async editUserInfo(body: EditUserInfoDto, req: Request) {
