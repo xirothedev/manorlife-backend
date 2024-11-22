@@ -3,13 +3,15 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
 	IsArray,
+	IsDateString,
 	IsDefined,
+	IsEnum,
 	IsNotEmpty,
-	IsNumberString,
+	IsNumber,
 	IsOptional,
 	IsString,
 	MaxLength,
-	ValidateNested
+	ValidateNested,
 } from "class-validator";
 
 export class GetBranchsDto {
@@ -20,8 +22,8 @@ export class GetBranchsDto {
 
 	@ApiProperty()
 	@IsOptional()
-	@IsString()
-	ward?: string;
+	@IsString({ each: true })
+	wards?: string[];
 
 	@ApiProperty()
 	@IsOptional()
@@ -30,28 +32,33 @@ export class GetBranchsDto {
 
 	@ApiProperty()
 	@IsOptional()
-	@IsNumberString()
-	from?: string;
-
-	@ApiProperty()
-	@IsNumberString()
-	@IsOptional()
-	to?: string;
+	@IsDateString()
+	from?: Date;
 
 	@ApiProperty()
 	@IsOptional()
-	@IsNumberString()
-	adults?: string;
+	@IsDateString()
+	to?: Date;
 
 	@ApiProperty()
-	@IsNumberString()
 	@IsOptional()
-	children?: string;
+	@IsNumber()
+	adults?: number;
 
 	@ApiProperty()
-	@IsNumberString()
+	@IsNumber()
 	@IsOptional()
-	babies?: string;
+	children?: number;
+
+	@ApiProperty()
+	@IsNumber()
+	@IsOptional()
+	babies?: number;
+
+	@ApiProperty()
+	@IsEnum({ desc: "desc", asc: "asc", popular: "popular" })
+	@IsOptional()
+	sort?: "desc" | "asc" | "popular";
 }
 
 export class CreateBranchDto {

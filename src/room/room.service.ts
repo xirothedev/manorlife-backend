@@ -63,7 +63,7 @@ export class RoomService {
 				max_adults: +body.max_adults,
 				max_children: +body.max_children,
 				max_babies: +body.max_babies,
-				images: files,
+				images: files.filter((f) => f),
 				bed_type: body.bed_type,
 				available_from: new Date(+body.available_from),
 				available_to: new Date(+body.available_to),

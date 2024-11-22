@@ -13,29 +13,63 @@ export class BranchService {
 		private media: MediaSerivce,
 	) {}
 
-	async getBranchs(query: GetBranchsDto) {
-		const wards = query.ward?.split(",");
+	async getBranchs(body: GetBranchsDto) {
 		const branchs = await this.prisma.branch.findMany({
 			where: {
-				province: query.province || undefined,
-				trademark: query.trademark || undefined,
+				province: body.province ?? undefined,
+				trademark: body.trademark ?? undefined,
 				rooms: {
 					some: {
-						available_from: { lte: query.from ? new Date(+query.from) : undefined, not: null },
-						available_to: { gte: query.to ? new Date(+query.to) : undefined, not: null },
-						max_adults: { gte: +query.adults || undefined },
-						max_children: { gte: +query.children || undefined },
-						max_babies: { gte: +query.babies || undefined },
+						available_from: { lte: body.from ?? undefined, not: null },
+						available_to: { gte: body.to ?? undefined, not: null },
+						max_adults: { gte: body.adults ?? undefined },
+						max_children: { gte: body.children ?? undefined },
+						max_babies: { gte: body.babies ?? undefined },
 					},
 				},
 			},
 			include: { rooms: true },
 		});
 
-		const filter = wards ? branchs.filter((f) => wards.includes(f.ward)) : branchs;
+		const filter =
+			body.wards && body.wards.length !== 0 ? branchs.filter((f) => body.wards.includes(f.ward)) : branchs;
+
+		if (body.sort) {
+			if (body.sort === "asc") {
+				filter.forEach((item) => {
+					item.rooms.sort((a, b) => a.price_per_night - b.price_per_night);
+				});
+
+				filter.sort((a, b) => {
+					const minPriceA = a.rooms[0]?.price_per_night || 0;
+					const minPriceB = b.rooms[0]?.price_per_night || 0;
+					return minPriceA - minPriceB;
+				});
+			} else if (body.sort === "desc") {
+				filter.forEach((item) => {
+					item.rooms.sort((a, b) => b.price_per_night - a.price_per_night);
+				});
+
+				filter.sort((a, b) => {
+					const maxPriceA = a.rooms[0]?.price_per_night || 0;
+					const maxPriceB = b.rooms[0]?.price_per_night || 0;
+					return maxPriceB - maxPriceA;
+				});
+			} else {
+				filter.forEach((item) => {
+					item.rooms.sort((a, b) => b.booking_turn - a.booking_turn);
+				});
+
+				filter.sort((a, b) => {
+					const maxPriceA = a.rooms[0]?.booking_turn || 0;
+					const maxPriceB = b.rooms[0]?.booking_turn || 0;
+					return maxPriceB - maxPriceA;
+				});
+			}
+		}
 
 		return {
-			message: `Đã lấy ${branchs.length} chi nhánh thành công`,
+			message: `Đã lấy ${filter.length} chi nhánh thành công`,
 			data: filter,
 		};
 	}
@@ -94,7 +128,7 @@ export class BranchService {
 			data: {
 				name: body.name,
 				description: body.description,
-				images: files,
+				images: files.filter((f) => f),
 				url: body.url,
 				location: body.location,
 				trademark: body.trademark,
@@ -111,69 +145,66 @@ export class BranchService {
 		};
 	}
 
-  async editBranch(body: EditBranchDto, images: Array<Express.Multer.File>) {
-		console.log(images)
-    const branch = await this.prisma.branch.findUnique({ where: { branch_id: body.branch_id } });
+	async editBranch(body: EditBranchDto, images: Array<Express.Multer.File>) {
+		console.log(images);
+		const branch = await this.prisma.branch.findUnique({ where: { branch_id: body.branch_id } });
 
-    if (!branch) {
-      throw new BadRequestException({ message: "Chi nhánh không tồn tại" });
-    }
+		if (!branch) {
+			throw new BadRequestException({ message: "Chi nhánh không tồn tại" });
+		}
 
-    const currentImages = branch.images || [];
-    const deletedImages = currentImages.filter((oldImage) => !body.existing_urls.includes(oldImage));
+		const currentImages = branch.images || [];
+		const deletedImages = currentImages.filter((oldImage) => !body.existing_urls.includes(oldImage));
 
-    try {
-      await Promise.all(
-        deletedImages.map((image) =>
-          unlink(path.join("public", image)).catch((error) =>
-            console.error(`Failed to delete image ${image}:`, error),
-          ),
-        ),
-      );
+		try {
+			await Promise.all(
+				deletedImages.map((image) =>
+					unlink(path.join("public", image)).catch((error) =>
+						console.error(`Failed to delete image ${image}:`, error),
+					),
+				),
+			);
 
+			const newImages = await Promise.all(
+				images.map(async (file) => {
+					try {
+						return await this.media.transform(file);
+					} catch (error) {
+						console.error(`Failed to process image ${file.originalname}:`, error);
+						return null;
+					}
+				}),
+			);
 
-      const newImages = await Promise.all(
-        images.map(async (file) => {
-          try {
-            return await this.media.transform(file);
-          } catch (error) {
-            console.error(`Failed to process image ${file.originalname}:`, error);
-            return null; 
-          }
-        }),
-      );
+			branch.images = [...body.existing_urls, ...newImages.filter((img) => img !== null)];
 
+			const updatedBranch = await this.prisma.branch.update({
+				where: { branch_id: body.branch_id },
+				data: {
+					name: body.name,
+					description: body.description,
+					images: branch.images,
+					location: body.location,
+					trademark: body.trademark,
+					best_comforts: body.best_comforts,
+					province: body.province,
+					ward: body.ward,
+					surrounding_area: {
+						deleteMany: {},
+						createMany: { data: body.surrounding_area },
+					},
+				},
+			});
 
-      branch.images = [...body.existing_urls, ...newImages.filter((img) => img !== null)];
-
-
-      const updatedBranch = await this.prisma.branch.update({
-        where: { branch_id: body.branch_id },
-        data: {
-          name: body.name,
-          description: body.description,
-          images: branch.images,
-          location: body.location,
-          trademark: body.trademark,
-          best_comforts: body.best_comforts,
-          province: body.province,
-          ward: body.ward,
-          surrounding_area: {
-            deleteMany: {}, 
-            createMany: { data: body.surrounding_area }, 
-          },
-        },
-      });
-
-      return {
-        message: "Sửa chi nhánh thành công",
-        data: updatedBranch,
-      };
-    } catch (error) {
-      console.error("Lỗi khi xử lý chi nhánh:", error);
-      throw new InternalServerErrorException({ message: "Server gặp vấn đề khi xử lý request" });
-    }
-  }
+			return {
+				message: "Sửa chi nhánh thành công",
+				data: updatedBranch,
+			};
+		} catch (error) {
+			console.error("Lỗi khi xử lý chi nhánh:", error);
+			throw new InternalServerErrorException({ message: "Server gặp vấn đề khi xử lý request" });
+		}
+	}
 	async deleteBranch(param: string) {
 		const branch = await this.prisma.branch.findUnique({ where: { branch_id: param } });
 

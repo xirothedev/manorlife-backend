@@ -2,7 +2,7 @@ import { CookieOptions } from "express";
 import { createTransport } from "nodemailer";
 
 export const cookieConfigs: CookieOptions = {
-	domain: ".manorlife.vn",
+	domain: process.env.DOMAIN,
 	path: "/",
 	httpOnly: true,
 	secure: true,
@@ -19,7 +19,7 @@ export const transporter = createTransport({
 		user: process.env.EMAIL_ADDRESS,
 		pass: process.env.EMAIL_PASSWORD,
 	},
-	// tls: {
-	// 	rejectUnauthorized: false,
-	// },
+	tls: {
+		rejectUnauthorized: false,
+	},
 });

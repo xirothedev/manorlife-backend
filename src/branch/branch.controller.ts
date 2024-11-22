@@ -6,10 +6,9 @@ import {
 	Param,
 	Post,
 	Put,
-	Query,
 	UploadedFiles,
 	UseGuards,
-	UseInterceptors,
+	UseInterceptors
 } from "@nestjs/common";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
@@ -23,9 +22,9 @@ import { BranchService } from "./branch.service";
 export class BranchController {
 	constructor(private service: BranchService) {}
 
-	@Get("")
-	getBranchs(@Query() query: GetBranchsDto) {
-		return this.service.getBranchs(query);
+	@Post("/search")
+	getBranchs(@Body() body: GetBranchsDto) {
+		return this.service.getBranchs(body);
 	}
 
 	@Get("all")
