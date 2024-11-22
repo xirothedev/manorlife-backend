@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { unlink } from "fs/promises";
 import path from "path";
-import { BadRequestException } from "src/exception";
+import { BadRequestException, InternalServerErrorException } from "src/exception";
 import { MediaSerivce } from "src/media.service";
 import { PrismaService } from "src/prisma.service";
 import { CreateRoomDto, EditRoomDto } from "./room.dto";
@@ -91,30 +91,53 @@ export class RoomService {
 			throw new BadRequestException({ message: "Chi nhánh không tồn tại" });
 		}
 
-		let files;
+		const files = room.images;
 
-		if (images && images.length !== 0) {
-			await Promise.all(room.images.map(async (image) => await unlink(path.join("public", image))));
-			files = await Promise.all(images.map(this.media.transform));
+		const deletedImages = files.filter((oldImage) => !body.existing_urls.includes(oldImage));
+
+		try {
+			await Promise.all(
+				deletedImages.map((image) =>
+					unlink(path.join("public", image)).catch((error) =>
+						console.error(`Failed to delete image ${image}:`, error),
+					),
+				),
+			);
+
+			const newImages = await Promise.all(
+				images.map(async (file) => {
+					try {
+						return await this.media.transform(file);
+					} catch (error) {
+						console.error(`Failed to process image ${file.originalname}:`, error);
+						return null;
+					}
+				}),
+			);
+
+			room.images = [...body.existing_urls, ...newImages.filter((img) => img !== null)];
+
+			const data = await this.prisma.room.update({
+				where: { room_id: body.room_id },
+				data: {
+					name: body.name,
+					description: body.description,
+					price_per_month: body.price_per_month,
+					price_per_night: body.price_per_night,
+					stock: body.stock,
+					room_id: branch.branch_id,
+					images: room.images,
+				},
+			});
+
+			return {
+				message: "Sửa phòng thành công",
+				data,
+			};
+		} catch (error) {
+			console.error(error);
+			throw new InternalServerErrorException({ message: "Server gặp vấn đề khi xử lý request" });
 		}
-
-		const data = await this.prisma.room.update({
-			where: { room_id: body.room_id },
-			data: {
-				name: body.name,
-				description: body.description,
-				price_per_month: body.price_per_month,
-				price_per_night: body.price_per_night,
-				stock: body.stock,
-				branch_id: branch.branch_id,
-				images: files,
-			},
-		});
-
-		return {
-			message: "Sửa phòng thành công",
-			data,
-		};
 	}
 
 	async deleteRoom(param: string) {

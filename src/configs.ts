@@ -2,7 +2,7 @@ import { CookieOptions } from "express";
 import { createTransport } from "nodemailer";
 
 export const cookieConfigs: CookieOptions = {
-	domain: "localhost",
+	domain: ".manorlife.vn",
 	path: "/",
 	httpOnly: true,
 	secure: true,
@@ -12,14 +12,14 @@ export const cookieConfigs: CookieOptions = {
 };
 
 export const transporter = createTransport({
-	host: "smtp.office365.com",
+	host: "smtp.ethereal.email",
 	port: 587,
 	secure: false,
 	auth: {
 		user: process.env.EMAIL_ADDRESS,
 		pass: process.env.EMAIL_PASSWORD,
 	},
-	tls: {
-		rejectUnauthorized: false,
-	},
+	// tls: {
+	// 	rejectUnauthorized: false,
+	// },
 });

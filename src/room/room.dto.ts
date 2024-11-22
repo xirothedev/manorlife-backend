@@ -1,3 +1,4 @@
+import { Optional } from "@nestjs/common";
 import { ApiProperty } from "@nestjs/swagger";
 import { RoomBedType } from "@prisma/client";
 import {
@@ -33,12 +34,10 @@ export class CreateRoomDto {
 	name: string;
 
 	@ApiProperty()
-	@IsArray()
 	@IsNotEmpty()
-	@IsString({ each: true })
-	@IsNotEmpty({ each: true })
-	@MaxLength(4000, { each: true })
-	description: string[];
+	@IsString()
+	@MaxLength(4000)
+	description: string;
 
 	@ApiProperty()
 	@IsNumberString()
@@ -119,18 +118,22 @@ export class EditRoomDto {
 	name: string;
 
 	@ApiProperty()
-	@IsArray()
 	@IsNotEmpty()
-	@IsString({ each: true })
-	@IsNotEmpty({ each: true })
-	@MaxLength(4000, { each: true })
-	description: string[];
+	@IsString()
+	@MaxLength(4000)
+	description: string;
 
 	@ApiProperty()
 	@IsNotEmpty()
 	@IsArray()
 	@IsString({ each: true })
 	best_comforts: string[];
+
+	@ApiProperty()
+	@Optional()
+	@IsArray()
+	@IsString({ each: true })
+	existing_urls: string[];
 
 	@ApiProperty()
 	@IsNotEmpty()

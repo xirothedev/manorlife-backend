@@ -1,3 +1,4 @@
+import { Optional } from "@nestjs/common";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
@@ -60,12 +61,10 @@ export class CreateBranchDto {
 	name: string;
 
 	@ApiProperty()
-	@IsArray()
 	@IsNotEmpty()
-	@IsString({ each: true })
-	@IsNotEmpty({ each: true })
-	@MaxLength(4000, { each: true })
-	description: string[];
+	@IsString()
+	@MaxLength(4000)
+	description: string;
 
 	@ApiProperty()
 	@IsString()
@@ -118,12 +117,10 @@ export class EditBranchDto {
 	name: string;
 
 	@ApiProperty()
-	@IsArray()
 	@IsNotEmpty()
-	@IsString({ each: true })
-	@IsNotEmpty({ each: true })
-	@MaxLength(4000, { each: true })
-	description: string[];
+	@IsString()
+	@MaxLength(4000)
+	description: string;
 
 	@ApiProperty()
 	@IsString()
@@ -157,6 +154,12 @@ export class EditBranchDto {
 	@ValidateNested({ each: true })
 	@Type(() => SurroundingAreaDto)
 	surrounding_area: SurroundingAreaDto[];
+
+	@ApiProperty()
+	@Optional()
+	@IsArray()
+	@IsString({ each: true })
+	existing_urls: string[];
 }
 
 export class SurroundingAreaDto {

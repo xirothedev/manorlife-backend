@@ -53,7 +53,7 @@ export class BranchController {
 	@Roles("administrator")
 	@UseInterceptors(FilesInterceptor("images"))
 	editBranch(@Body() body: EditBranchDto, @UploadedFiles() images?: Array<Express.Multer.File>) {
-		return this.service.editRoom(body, images);
+		return this.service.editBranch(body, images);
 	}
 
 	@Delete("/:param")

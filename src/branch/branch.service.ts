@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { unlink } from "fs/promises";
 import * as path from "path";
-import { BadRequestException } from "src/exception";
+import { BadRequestException, InternalServerErrorException } from "src/exception";
 import { MediaSerivce } from "src/media.service";
 import { PrismaService } from "src/prisma.service";
 import { CreateBranchDto, EditBranchDto, GetBranchsDto } from "./branch.dto";
@@ -111,41 +111,69 @@ export class BranchService {
 		};
 	}
 
-	async editRoom(body: EditBranchDto, images: Array<Express.Multer.File>) {
-		const branch = await this.prisma.branch.findUnique({ where: { branch_id: body.branch_id } });
+  async editBranch(body: EditBranchDto, images: Array<Express.Multer.File>) {
+		console.log(images)
+    const branch = await this.prisma.branch.findUnique({ where: { branch_id: body.branch_id } });
 
-		if (!branch) {
-			throw new BadRequestException({ message: "Chi nhánh không tồn tại" });
-		}
+    if (!branch) {
+      throw new BadRequestException({ message: "Chi nhánh không tồn tại" });
+    }
 
-		let files = branch.images;
+    const currentImages = branch.images || [];
+    const deletedImages = currentImages.filter((oldImage) => !body.existing_urls.includes(oldImage));
 
-		if (images && images.length !== 0) {
-			await Promise.all(branch.images.map(async (image) => await unlink(path.join("public", image))));
-			files = await Promise.all(images.map(this.media.transform));
-		}
+    try {
+      await Promise.all(
+        deletedImages.map((image) =>
+          unlink(path.join("public", image)).catch((error) =>
+            console.error(`Failed to delete image ${image}:`, error),
+          ),
+        ),
+      );
 
-		const data = await this.prisma.branch.update({
-			where: { branch_id: body.branch_id },
-			data: {
-				name: body.name,
-				description: body.description,
-				images: files,
-				location: body.location,
-				trademark: body.trademark,
-				best_comforts: body.best_comforts,
-				province: body.province,
-				ward: body.ward,
-				surrounding_area: { createMany: { skipDuplicates: true, data: body.surrounding_area } },
-			},
-		});
 
-		return {
-			message: "Sửa chi nhánh thành công",
-			data,
-		};
-	}
+      const newImages = await Promise.all(
+        images.map(async (file) => {
+          try {
+            return await this.media.transform(file);
+          } catch (error) {
+            console.error(`Failed to process image ${file.originalname}:`, error);
+            return null; 
+          }
+        }),
+      );
 
+
+      branch.images = [...body.existing_urls, ...newImages.filter((img) => img !== null)];
+
+
+      const updatedBranch = await this.prisma.branch.update({
+        where: { branch_id: body.branch_id },
+        data: {
+          name: body.name,
+          description: body.description,
+          images: branch.images,
+          location: body.location,
+          trademark: body.trademark,
+          best_comforts: body.best_comforts,
+          province: body.province,
+          ward: body.ward,
+          surrounding_area: {
+            deleteMany: {}, 
+            createMany: { data: body.surrounding_area }, 
+          },
+        },
+      });
+
+      return {
+        message: "Sửa chi nhánh thành công",
+        data: updatedBranch,
+      };
+    } catch (error) {
+      console.error("Lỗi khi xử lý chi nhánh:", error);
+      throw new InternalServerErrorException({ message: "Server gặp vấn đề khi xử lý request" });
+    }
+  }
 	async deleteBranch(param: string) {
 		const branch = await this.prisma.branch.findUnique({ where: { branch_id: param } });
 
