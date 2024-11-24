@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { compare, hash } from "bcrypt";
 import { Request } from "express";
-import { BadRequestException, UnauthorizedException } from "src/exception";
+import { BadRequestException, NotFoundException, UnauthorizedException } from "src/exception";
 import { PrismaService } from "src/prisma.service";
 import { EditUserInfoDto, EditUserPasswordDto } from "./users.dto";
 
@@ -37,7 +37,7 @@ export class UsersService {
 		const user = await this.prisma.user.findUnique({ where: { user_id: param } });
 
 		if (!user) {
-			throw new BadRequestException({ message: "Người dùng không tồn tại" });
+			throw new NotFoundException({ message: "Người dùng không tồn tại" });
 		}
 
 		return {

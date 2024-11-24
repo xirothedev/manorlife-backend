@@ -23,3 +23,9 @@ export class BadRequestException extends HttpException {
 		super(response, HttpStatus.BAD_REQUEST);
 	}
 }
+
+export class NotFoundException extends HttpException {
+	constructor(response: any) {
+		super(response, HttpStatus.NOT_FOUND);
+	}
+}
