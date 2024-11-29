@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import * as dayjs from "dayjs";
 import { Request } from "express";
 import { BankService } from "src/bank.service";
 import { BadRequestException } from "src/exception";
@@ -38,9 +37,6 @@ export class BookingService {
 	async createBooking(body: CreateBookingDto, req: Request) {
 		const room = await this.prisma.room.findUnique({ where: { room_id: body.room_id } });
 
-		body.checkin = new Date(body.checkin);
-		body.checkout = new Date(body.checkout);
-
 		if (!room) {
 			throw new BadRequestException({ message: "Đặt phòng tồn tại" });
 		}
@@ -57,20 +53,36 @@ export class BookingService {
 			});
 		}
 
-		if (body.checkin.getTime() <= Date.now()) {
-			throw new BadRequestException({ message: "Thời gian checkin không hợp lệ" });
+		const fromDate = new Date(body.checkout);
+		const toDate = new Date(body.checkin);
+
+		function startOfDay(date) {
+			const d = new Date(date);
+			d.setHours(0, 0, 0, 0);
+			return d;
 		}
 
-		if (body.checkout.getTime() <= Date.now() || body.checkout.getTime() <= body.checkin.getTime()) {
-			throw new BadRequestException({ message: "Thời gian checkout không hợp lệ" });
+		const today = startOfDay(new Date());
+
+		if (fromDate.getTime() < today.getTime()) {
+			throw new BadRequestException({ message: "Thời gian checkin phải lớn hơn hoặc bằng hôm nay" });
 		}
 
+		const nextDay = new Date(fromDate);
+		nextDay.setDate(fromDate.getDate() + 1);
+
+		if (toDate.getTime() < nextDay.getTime()) {
+			throw new BadRequestException({
+				message: "Thời gian checkout phải lớn hơn thời gian checkin ít nhất 1 ngày",
+			});
+		}
+
+		if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) return 0;
+
+		const daysDifference = (toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24);
+		const range = Math.max(daysDifference * (body.range === "months" ? 30 : 1), 1);
 		const unit = body.range === "months" ? room.price_per_month : room.price_per_night;
-		const range = Math.ceil(
-			dayjs(body.checkout).diff(dayjs(body.checkin), body.range === "months" ? "month" : "day"),
-		);
-
-		const cost = unit * range;
+		const cost = unit * Math.round(range);
 
 		const data = await this.prisma.booking.create({
 			data: {
